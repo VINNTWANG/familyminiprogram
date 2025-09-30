@@ -13,8 +13,34 @@ exports.main = async (event, context) => {
     };
   }
 
-  const { nickName, avatarUrl } = event;
+  const { action, nickName, avatarUrl } = event;
 
+  // Handle profile update action
+  if (action === 'updateProfile') {
+    try {
+      const usersCollection = db.collection('users');
+      const userRecord = await usersCollection.where({ _openid: openid }).get();
+      if (userRecord.data.length === 0) {
+        return { code: 404, message: 'User not found' };
+      }
+
+      const updateData = {};
+      if (nickName) updateData.nickName = nickName;
+      if (avatarUrl) updateData.avatarUrl = avatarUrl;
+
+      if (Object.keys(updateData).length > 0) {
+        await usersCollection.doc(userRecord.data[0]._id).update({ data: updateData });
+      }
+
+      const updatedUser = (await usersCollection.doc(userRecord.data[0]._id).get()).data;
+      return { code: 0, message: 'Profile updated', data: updatedUser };
+    } catch (e) {
+      console.error(e);
+      return { code: -1, message: 'Update failed', error: e };
+    }
+  }
+
+  // Default action is login/register
   try {
     const usersCollection = db.collection('users');
     const userRecord = await usersCollection.where({ _openid: openid }).get();

@@ -105,8 +105,16 @@ Page({
       let urlMap = {};
       if (unique.length > 0) {
         try {
-          const t = await wx.cloud.getTempFileURL({ fileList: unique });
-          urlMap = (t.fileList || []).reduce((acc, x) => { if (x.status === 0) acc[x.fileID] = x.tempFileURL; return acc; }, {});
+          const chunkSize = 50;
+          for (let i = 0; i < unique.length; i += chunkSize) {
+            const chunk = unique.slice(i, i + chunkSize);
+            const tempUrlRes = await wx.cloud.getTempFileURL({ fileList: chunk });
+            const chunkUrlMap = (tempUrlRes.fileList || []).reduce((acc, x) => {
+              if (x.status === 0) acc[x.fileID] = x.tempFileURL;
+              return acc;
+            }, {});
+            Object.assign(urlMap, chunkUrlMap); // Merge results from each chunk
+          }
         } catch (e) {
           console.error('[my] getTempFileURL failed', e);
         }
@@ -193,6 +201,60 @@ Page({
     wx.showToast({
       title: '管理员',
       icon: 'none'
+    });
+  },
+
+  onAvatarAreaTap() {
+    wx.chooseAvatar({
+      success: async (res) => {
+        const { avatarUrl } = res;
+        if (!avatarUrl) return;
+
+        wx.showLoading({ title: '更新中...' });
+
+        try {
+          // 1. Upload the new avatar
+          const uploadResult = await wx.cloud.uploadFile({
+            cloudPath: `user_avatars/${Date.now()}-${Math.floor(Math.random() * 1000)}.png`,
+            filePath: avatarUrl,
+          });
+          const newAvatarFileID = uploadResult.fileID;
+
+          // 2. Call cloud function to update the user record
+          const updateResult = await wx.cloud.callFunction({
+            name: 'login',
+            data: { 
+              action: 'updateProfile',
+              avatarUrl: newAvatarFileID, 
+            },
+          });
+
+          if (updateResult.result && updateResult.result.data) {
+            // 3. Update local data and storage
+            const updatedUserInfo = updateResult.result.data;
+            wx.setStorageSync('userInfo', updatedUserInfo);
+            
+            let displayAvatarUrl = updatedUserInfo.avatarUrl;
+            if (displayAvatarUrl && displayAvatarUrl.startsWith('cloud://')) {
+                const tempUrlRes = await wx.cloud.getTempFileURL({ fileList: [displayAvatarUrl] });
+                if (tempUrlRes.fileList && tempUrlRes.fileList[0] && tempUrlRes.fileList[0].status === 0) {
+                  displayAvatarUrl = tempUrlRes.fileList[0].tempFileURL;
+                }
+            }
+            updatedUserInfo.avatarUrl = displayAvatarUrl;
+
+            this.setData({ personalInfo: updatedUserInfo });
+            wx.showToast({ title: '头像更新成功' });
+          } else {
+            throw new Error((updateResult.result && updateResult.result.message) || 'Update failed');
+          }
+        } catch (err) {
+          wx.showToast({ title: '更新失败，请重试', icon: 'none' });
+          console.error('Failed to change avatar', err);
+        } finally {
+          wx.hideLoading();
+        }
+      }
     });
   },
 
