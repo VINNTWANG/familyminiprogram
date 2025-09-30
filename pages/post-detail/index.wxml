@@ -42,7 +42,9 @@
                   <view wx:if="{{comment.authorIsAdmin}}">
                     <t-icon name="check-circle-filled" size="28rpx" color="gold" />
                   </view>
-                  <text class="badge personal-badge" wx:if="{{comment.authorRole === '个人认证'}}">{{i18n.certified}}</text>
+                  <view wx:if="{{comment.authorRole === '个人认证'}}">
+                    <t-icon name="check-circle-filled" size="28rpx" color="#0052D9" />
+                  </view>
                 </view>
               </view>
               <view class="c-text">

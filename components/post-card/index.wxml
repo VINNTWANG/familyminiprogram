@@ -9,9 +9,8 @@
         <view class="row">
           <view class="row-left">
             <text class="name">{{post.authorInfo.nickName}}</text>
-            <text class="family-name" wx:if="{{post.authorInfo.familyName}}">@{{post.authorInfo.familyName}}</text>
             <view class="badges-wrapper">
-              <view wx:if="{{isAdmin}}" bind:longpress="showAdminTooltip">
+              <view wx:if="{{post.authorInfo.isAdmin}}">
                 <t-icon name="check-circle-filled" size="32rpx" color="gold" />
               </view>
               <view wx:if="{{post.authorInfo.role === '个人认证'}}">
@@ -24,6 +23,7 @@
             <text class="time">{{post.timestamp}}</text>
           </view>
         </view>
+        <text class="family-name" wx:if="{{post.authorInfo.familyName}}">@{{post.authorInfo.familyName}}</text>
       </view>
       <view class="more-options-btn" wx:if="{{currentUserInfo._openid === post._openid || currentUserInfo.isAdmin}}" catch:tap="onMoreOptions">
         <t-icon name="more" size="48rpx" color="#8A9199" />
