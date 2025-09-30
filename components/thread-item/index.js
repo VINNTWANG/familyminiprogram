@@ -7,6 +7,10 @@ Component({
       type: Object,
       value: {},
     },
+    currentUserInfo: {
+      type: Object,
+      value: null,
+    },
   },
 
   lifetimes: {
@@ -117,6 +121,10 @@ Component({
       }, 400); // Animation duration is 300ms, timeout is slightly longer
 
       this.onSelectReaction({ currentTarget: { dataset: { emoji: '❤️' } } });
+    },
+
+    onMoreOptions() {
+      this.triggerEvent('showoptions', { post: this.data.post });
     },
 
     onToggleReactionPanel() {

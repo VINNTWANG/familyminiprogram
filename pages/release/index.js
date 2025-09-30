@@ -278,7 +278,7 @@ Page({
         wx.showToast({ title: `${failed.length}个文件上传失败`, icon: 'none' });
       }
 
-      if (failed.length < total) {
+      if (!(failed.length === total && total > 0)) {
         await db.collection('posts').add({
           data: {
             content: this.data.content,

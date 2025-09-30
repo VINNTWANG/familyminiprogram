@@ -1,8 +1,8 @@
 <view class="thread-card-root">
   <!-- Author Info -->
-  <view class="header" bind:tap="onCardTap">
-    <image class="avatar" src="{{post.authorInfo.avatarUrl}}" />
-    <view class="meta">
+  <view class="header">
+    <image class="avatar" src="{{post.authorInfo.avatarUrl}}" bind:tap="onCardTap" />
+    <view class="meta" bind:tap="onCardTap">
       <view class="name-line">
         <text class="name">{{post.authorInfo.nickName}}</text>
         <view class="badges-wrapper">
@@ -15,6 +15,9 @@
         </view>
       </view>
       <view class="time">{{post.timestamp}}</view>
+    </view>
+    <view class="more-options-btn" wx:if="{{currentUserInfo._openid === post._openid || currentUserInfo.isAdmin}}" catch:tap="onMoreOptions">
+      <t-icon name="more" size="48rpx" color="#8A9199" />
     </view>
   </view>
 

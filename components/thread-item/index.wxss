@@ -210,3 +210,8 @@
 .reaction-popup .emoji:active {
   transform: scale(0.85);
 }
+
+.more-options-btn {
+  padding: 10rpx;
+  color: #8A9199;
+}

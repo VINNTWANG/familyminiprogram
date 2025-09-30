@@ -23,7 +23,7 @@
     </view>
 
     <block wx:else>
-      <post-card post="{{post}}" bind:updatepost="onPostUpdate"></post-card>
+      <post-card post="{{post}}" currentUserInfo="{{currentUserInfo}}" bind:updatepost="onPostUpdate"></post-card>
 
 
 

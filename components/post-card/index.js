@@ -14,6 +14,10 @@ Component({
       type: Boolean,
       value: false,
     },
+    currentUserInfo: {
+      type: Object,
+      value: null,
+    },
   },
   data: {
     showReactionPopup: false,
@@ -298,6 +302,72 @@ Component({
         const imgs = (this.properties.post.images || []).map((u) => u);
         wx.previewImage({ current: item.src, urls: imgs });
       }
+    },
+
+    onMoreOptions() {
+      const { post, currentUserInfo } = this.properties;
+  
+      // Permission check
+      const isAuthor = currentUserInfo && currentUserInfo._openid === post._openid;
+      const isAdmin = currentUserInfo && currentUserInfo.isAdmin;
+  
+      if (!isAuthor && !isAdmin) {
+        return;
+      }
+  
+      wx.showActionSheet({
+        itemList: ['删除'],
+        itemColor: '#ff4d4f',
+        success: (res) => {
+          if (res.tapIndex === 0) {
+            this.deletePost();
+          }
+        },
+      });
+    },
+
+    async deletePost() {
+      const postId = this.properties.post?._id;
+      if (!postId) return;
+
+      wx.showModal({
+        title: '确认删除',
+        content: '您确定要删除这条动态吗？',
+        success: async (res) => {
+          if (res.confirm) {
+            wx.showLoading({ title: '删除中...' });
+            try {
+              // Login workaround
+              await wx.cloud.callFunction({ name: 'login', data: {} });
+  
+              const result = await wx.cloud.callFunction({
+                name: 'managePost',
+                data: {
+                  action: 'delete',
+                  postId: postId,
+                },
+              });
+  
+              wx.hideLoading();
+              if (result.result && result.result.code === 0) {
+                wx.showToast({ title: '删除成功' });
+                
+                // Notify home page to remove the post from list
+                getApp().eventBus.emit('post-deleted', { postId });
+
+                // Navigate back
+                wx.navigateBack();
+              } else {
+                throw new Error(result.result.message || '删除失败');
+              }
+            } catch (err) {
+              wx.hideLoading();
+              wx.showToast({ title: err.message || '删除失败，请重试', icon: 'none' });
+              console.error('Failed to delete post', err);
+            }
+          }
+        },
+      });
     },
   },
 });

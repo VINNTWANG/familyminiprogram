@@ -69,7 +69,7 @@
           <view class="post-list">
             <block wx:for="{{posts}}" wx:key="_id">
               <view class="post-item-wrapper fade-up">
-                <thread-item post="{{item}}" is-admin="{{isAdmin && item._openid === personalInfo._openid}}" bind:openDetail="openDetail" />
+                <thread-item post="{{item}}" is-admin="{{isAdmin && item._openid === personalInfo._openid}}" currentUserInfo="{{currentUserInfo}}" bind:openDetail="openDetail" bind:showoptions="onPostOptions" />
               </view>
             </block>
           </view>

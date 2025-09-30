@@ -1,11 +1,11 @@
 <!-- E:\Users\wntwa\WeChatProjects\miniprogram-1\components\post-card\index.wxml (Tooltip Redesign) -->
-<view class="post-card {{pressed ? 'pressed' : ''}}" bindtouchstart="onTouchStart" bindtouchend="onTouchEnd" bindtap="onCardTap">
+<view class="post-card {{pressed ? 'pressed' : ''}}" bindtouchstart="onTouchStart" bindtouchend="onTouchEnd">
   <view class="card">
     <view class="header">
       <navigator class="avatar {{isHot ? 'hot' : ''}}" url="/pages/user-profile/index?_openid={{post.authorInfo._openid}}">
         <t-avatar image="{{post.authorInfo && post.authorInfo.avatarUrl ? post.authorInfo.avatarUrl : ''}}" size="large" />
       </navigator>
-      <view class="meta">
+      <view class="meta" bind:tap="onCardTap">
         <view class="row">
           <view class="row-left">
             <text class="name">{{post.authorInfo.nickName}}</text>
@@ -24,6 +24,9 @@
             <text class="time">{{post.timestamp}}</text>
           </view>
         </view>
+      </view>
+      <view class="more-options-btn" wx:if="{{currentUserInfo._openid === post._openid || currentUserInfo.isAdmin}}" catch:tap="onMoreOptions">
+        <t-icon name="more" size="48rpx" color="#8A9199" />
       </view>
     </view>
 

@@ -131,6 +131,7 @@ Page({
       userNickName: userInfo.nickName || '家人',
       userAvatarUrl: finalAvatarUrl,
       isAdmin: userInfo.isAdmin || false,
+      currentUserInfo: userInfo, // Store the whole user object
     });
   },
 
@@ -236,6 +237,67 @@ Page({
     } finally {
       this.setData({ isLoading: false, isRefresherTriggered: false, loadingMore: false });
     }
+  },
+
+  onPostOptions(e) {
+    const { post } = e.detail;
+    const { currentUserInfo } = this.data;
+
+    // Permission check
+    const isAuthor = currentUserInfo && currentUserInfo._openid === post._openid;
+    const isAdmin = currentUserInfo && currentUserInfo.isAdmin;
+
+    if (!isAuthor && !isAdmin) {
+      return; // Safeguard
+    }
+
+    wx.showActionSheet({
+      itemList: ['删除'],
+      itemColor: '#ff4d4f',
+      success: (res) => {
+        if (res.tapIndex === 0) {
+          this.deletePost(post._id);
+        }
+      },
+    });
+  },
+
+  async deletePost(postId) {
+    wx.showModal({
+      title: '确认删除',
+      content: '您确定要删除这条动态吗？',
+      success: async (res) => {
+        if (res.confirm) {
+          wx.showLoading({ title: '删除中...' });
+          try {
+            // Login workaround to ensure session is fresh
+            await wx.cloud.callFunction({ name: 'login', data: {} });
+
+            const result = await wx.cloud.callFunction({
+              name: 'managePost',
+              data: {
+                action: 'delete',
+                postId: postId,
+              },
+            });
+
+            wx.hideLoading();
+            if (result.result && result.result.code === 0) {
+              wx.showToast({ title: '删除成功' });
+              // Remove post from local data to update UI
+              const newPosts = this.data.posts.filter(p => p._id !== postId);
+              this.setData({ posts: newPosts });
+            } else {
+              throw new Error(result.result.message || '删除失败');
+            }
+          } catch (err) {
+            wx.hideLoading();
+            wx.showToast({ title: err.message || '删除失败，请重试', icon: 'none' });
+            console.error('Failed to delete post', err);
+          }
+        }
+      },
+    });
   },
 
   // (The rest of the functions remain the same)
