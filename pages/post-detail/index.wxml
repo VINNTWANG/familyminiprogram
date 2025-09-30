@@ -48,13 +48,16 @@
               </block>
               {{comment.content}}
             </view>
-            <view class="c-footer">
+            <view class="c-footer" style="display: flex; justify-content: space-between; align-items: center;">
               <view class="c-time">{{comment.time}}</view>
-              <view class="reply-btn" bind:tap="onReply" data-comment="{{comment}}">{{i18n.replyPrefix}}</view>
+              <view style="display: flex; align-items: center;">
+                <text class="delete-btn" style="margin-left: 24rpx; font-size: 24rpx; color: #8a9199; background-color: #f2f3f5; padding: 6rpx 14rpx; border-radius: 8rpx;" wx:if="{{currentUserInfo._openid === comment._openid || currentUserInfo._openid === post._openid}}" bind:tap="onDeleteComment" data-comment-id="{{comment._id}}">删除</text>
+                <text class="reply-btn" style="margin-left: 16rpx; font-size: 24rpx; color: #0052D9; background-color: #f0f5ff; padding: 6rpx 14rpx; border-radius: 8rpx;" bind:tap="onReply" data-id="{{comment._id}}" data-name="{{comment.authorNickName}}" data-openid="{{comment._openid}}">回复</text>
+              </view>
             </view>
             <view class="child-comments-wrapper" wx:if="{{comment.children && comment.children.length > 0}}">
               <block wx:for="{{comment.children}}" wx:for-item="childComment" wx:key="_id">
-                <template is="commentItem" data="{{comment: childComment, isChild: true}}" />
+                <template is="commentItem" data="{{comment: childComment, isChild: true, post: post, currentUserInfo: currentUserInfo}}" />
               </block>
                 </view>
               </view>
@@ -64,7 +67,7 @@
       <view class="comments" wx:if="{{comments.length > 0}}">
         <view class="comments-title">{{i18n.commentsTitle}}</view>
         <block wx:for="{{comments}}" wx:key="_id">
-          <template is="commentItem" data="{{comment: item, isChild: false}}" />
+          <template is="commentItem" data="{{comment: item, isChild: false, post: post, currentUserInfo: currentUserInfo}}" />
         </block>
       </view>
       <view class="status muted" wx:else>
@@ -85,7 +88,7 @@
   </view>
 
   <view class="popup-layer" wx:if="{{showReactionPanel}}">
-    <view class="popup-overlay" bind:tap="toggleReactionPopup"></view>
+    <view class="popup-overlay" catch:tap="onCloseReactionPanel"></view>
     <view class="reaction-popup" catchtap="noop">
       <text class="emoji" wx:for="{{availableReactions}}" wx:key="*this" catchtap="onSelectReaction" data-emoji="{{item}}">{{item}}</text>
     </view>

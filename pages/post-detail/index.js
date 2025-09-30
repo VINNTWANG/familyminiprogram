@@ -196,15 +196,15 @@ Page({
   },
 
   onReply(e) {
-    const comment = e.currentTarget.dataset.comment;
+    const { id, name, openid } = e.currentTarget.dataset;
     this.setData({
       isReplying: true,
       replyInfo: {
-        parentCommentId: comment._id,
-        nickName: comment.authorNickName,
-        _openid: comment._openid
+        parentCommentId: id,
+        nickName: name,
+        _openid: openid
       },
-      inputPlaceholder: `回复 @${comment.authorNickName}`,
+      inputPlaceholder: `回复 @${name}`,
       inputFocused: true,
     });
   },
@@ -312,6 +312,65 @@ Page({
       comments.push(newComment);
     }
     this.setData({ comments: comments });
+  },
+
+  onDeleteComment(e) {
+    const { commentId } = e.currentTarget.dataset;
+    const { post } = this.data;
+
+    wx.showModal({
+      title: '确认删除',
+      content: '您确定要删除这条评论吗？子评论也会被一并删除。',
+      success: async (res) => {
+        if (res.confirm) {
+          wx.showLoading({ title: '删除中...' });
+          try {
+            // Login workaround
+            const loginRes = await wx.cloud.callFunction({ name: 'login', data: {} });
+            if (!loginRes.result || loginRes.result.code !== 0 || !loginRes.result.data.openid) {
+              throw new Error('登录检查失败: ' + (loginRes.result?.message || '无法获取 OPENID'));
+            }
+
+            const result = await wx.cloud.callFunction({
+              name: 'manageComment',
+              data: {
+                action: 'delete',
+                commentId: commentId,
+                postId: post._id,
+                debugOpenid: loginRes.result.data.openid // Pass the openid
+              },
+            });
+
+            wx.hideLoading();
+            if (result.result && result.result.code === 0) {
+              wx.showToast({ title: '删除成功', icon: 'success' });
+              const newComments = this.removeCommentFromTree(this.data.comments, commentId);
+              this.setData({ comments: newComments });
+            } else {
+              throw new Error(result.result.message || '删除失败');
+            }
+          } catch (err) {
+            wx.hideLoading();
+            wx.showToast({ title: err.message || '删除失败，请重试', icon: 'none' });
+            console.error('Failed to delete comment', err);
+          }
+        }
+      },
+    });
+  },
+
+  removeCommentFromTree(comments, commentId) {
+    const newComments = [];
+    for (const comment of comments) {
+      if (comment._id === commentId) {
+        continue; // Skip this comment
+      }
+      if (comment.children && comment.children.length > 0) {
+        comment.children = this.removeCommentFromTree(comment.children, commentId);
+      }
+      newComments.push(comment);
+    }
+    return newComments;
   },
 
   navigateBack() { wx.navigateBack(); },
