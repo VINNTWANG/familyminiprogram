@@ -73,7 +73,7 @@
           <t-icon name="chat" size="36rpx" />
           <text class="label">{{post.commentCount || 0}}</text>
         </view>
-        <view class="action-item" catch:tap="onToggleReactionPanel">
+        <view class="action-item" bind:longpress="onToggleReactionPanel">
           <text class="action-icon-emoji">😊</text>
         </view>
       </view>
@@ -82,7 +82,7 @@
 
   <!-- Reaction Popup Layer -->
   <view class="popup-layer" wx:if="{{showReactionPopup}}">
-    <view class="popup-overlay" bind:tap="onToggleReactionPanel"></view>
+    <view class="popup-overlay" catch:tap="onCloseReactionPanel"></view>
     <view class="reaction-popup">
       <text class="emoji" wx:for="{{availableReactions}}" wx:key="*this" catch:tap="onSelectReaction" data-emoji="{{item}}">{{item}}</text>
     </view>

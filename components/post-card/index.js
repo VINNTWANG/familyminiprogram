@@ -212,13 +212,30 @@ Component({
     onLike() { this.quickLike(); },
     onComment() { this.onCardTap(); },
     onTouchStart() { if (!this.data.pressed) this.setData({ pressed: true }); },
-    onTouchEnd() { if (this.data.pressed) this.setData({ pressed: false }); },
+    onTouchEnd() {
+      // If the popup is open, do nothing. Its closing will handle the pressed state.
+      if (this.data.showReactionPopup) return;
+      if (this.data.pressed) this.setData({ pressed: false });
+    },
     quickLike() {
       this.onSelectReaction({ currentTarget: { dataset: { emoji: '❤️' } } });
     },
     noop() {},
     onToggleReactionPanel() {
+      // Set a flag to ignore the tap event that follows the longpress
+      if (!this.data.showReactionPopup) {
+        this._ignoreNextOverlayTap = true;
+      }
       this.setData({ showReactionPopup: !this.data.showReactionPopup });
+    },
+    onCloseReactionPanel() {
+      // If the flag is set, it means this tap is the one that resulted from the longpress touchend.
+      // Ignore it once, and reset the flag.
+      if (this._ignoreNextOverlayTap) {
+        this._ignoreNextOverlayTap = false;
+        return;
+      }
+      this.setData({ showReactionPopup: false, pressed: false });
     },
     onSelectReaction(e) {
       const { emoji } = e.currentTarget.dataset;
@@ -243,7 +260,8 @@ Component({
       
       this.setData({ 
         'post.reactions': reactions,
-        showReactionPopup: false 
+        showReactionPopup: false,
+        pressed: false // Also reset pressed state here
       });
       this._updateReactionState(reactions);
 
