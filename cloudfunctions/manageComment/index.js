@@ -105,43 +105,31 @@ async function addComment(userInfo, postId, content, parentCommentId, replyToUse
  */
 async function deleteComment(userInfo, postId, commentId) {
   if (!userInfo || !userInfo.openId) {
-    return {
-      code: 401,
-      message: '用户未登录'
-    };
+    return { code: 401, message: '用户未登录' };
   }
   if (!commentId || !postId) {
-    return {
-      code: 400,
-      message: '缺少必要参数 (commentId, postId)'
-    };
+    return { code: 400, message: '缺少必要参数 (commentId, postId)' };
   }
 
-  // Get the comment to be deleted and the post it belongs to
-  const [commentRes, postRes] = await Promise.all([
+  // Get the comment, the post, and the user's admin status concurrently
+  const [commentRes, userRes] = await Promise.all([
     db.collection('comments').doc(commentId).get(),
-    db.collection('posts').doc(postId).get()
+    db.collection('users').where({ _openid: userInfo.openId }).get(),
   ]);
 
   const comment = commentRes.data;
-  const post = postRes.data;
+  const user = userRes.data[0];
 
   if (!comment) {
-    return {
-      code: 404,
-      message: '评论不存在'
-    };
+    return { code: 404, message: '评论不存在' };
   }
 
-  // Permission check: either comment owner or post owner can delete
+  // Permission check: either comment owner or an admin can delete
   const isCommentOwner = userInfo.openId === comment._openid;
-  const isPostOwner = post && userInfo.openId === post._openid;
+  const isAdmin = user && user.isAdmin;
 
-  if (!isCommentOwner && !isPostOwner) {
-    return {
-      code: 403,
-      message: '没有权限删除'
-    };
+  if (!isCommentOwner && !isAdmin) {
+    return { code: 403, message: '没有权限删除' };
   }
 
   // Find all child comments to delete them recursively
