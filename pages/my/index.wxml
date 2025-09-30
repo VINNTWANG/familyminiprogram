@@ -71,9 +71,9 @@
             <text class="info-label">家庭认证</text>
             <t-icon name="chevron-right" size="40rpx" class="cell-arrow" />
           </view>
-        </view>
-        <view class="logout-btn-container">
-           <t-button theme="danger" variant="light" content="退出登录" block shape="round" size="large" bind:tap="onLogout" />
+          <view class="info-row" bind:tap="onLogout">
+            <text class="info-label" style="color: #e34d59;">退出登录</text>
+          </view>
         </view>
       </view>
     </view>
