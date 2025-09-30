@@ -6,6 +6,13 @@ exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext();
   const openid = wxContext.OPENID;
 
+  if (!openid) {
+    return {
+      code: 401,
+      message: 'Login function failed to get OPENID.',
+    };
+  }
+
   const { nickName, avatarUrl } = event;
 
   try {
@@ -27,16 +34,25 @@ exports.main = async (event, context) => {
       // 返回新创建的用户数据
       userData = (await usersCollection.doc(addUserResult._id).get()).data;
     } else {
-      // 老用户，更新信息
-      await usersCollection.doc(userRecord.data[0]._id).update({
-        data: {
-          nickName: nickName,
-          avatarUrl: avatarUrl,
-        }
-      });
+      // 老用户，更新信息（仅当提供了新信息时）
+      const updateData = {};
+      if (nickName) {
+        updateData.nickName = nickName;
+      }
+      if (avatarUrl) {
+        updateData.avatarUrl = avatarUrl;
+      }
+      if (Object.keys(updateData).length > 0) {
+        await usersCollection.doc(userRecord.data[0]._id).update({
+          data: updateData
+        });
+      }
       // 返回更新后的用户数据
       userData = (await usersCollection.doc(userRecord.data[0]._id).get()).data;
     }
+
+    // Add openid to the returned data for debugging purposes
+    userData.openid = openid;
 
     return {
       code: 0,

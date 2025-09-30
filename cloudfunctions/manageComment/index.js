@@ -9,9 +9,7 @@ const _ = db.command;
 
 // Main entry point
 exports.main = async (event, context) => {
-  const {
-    userInfo
-  } = cloud.getWXContext();
+  const { userInfo } = cloud.getWXContext();
   const {
     action,
     postId,
@@ -20,6 +18,12 @@ exports.main = async (event, context) => {
     replyToUser,
     commentId
   } = event;
+
+  // Create an effective userInfo object, using the debugOpenid as a fallback
+  const effectiveUserInfo = { ...userInfo };
+  if (!effectiveUserInfo.openId && event.debugOpenid) {
+    effectiveUserInfo.openId = event.debugOpenid;
+  }
 
   if (!action) {
     return {
@@ -31,9 +35,9 @@ exports.main = async (event, context) => {
   try {
     switch (action) {
       case 'add':
-        return await addComment(userInfo, postId, content, parentCommentId, replyToUser);
+        return await addComment(effectiveUserInfo, postId, content, parentCommentId, replyToUser);
       case 'delete':
-        return await deleteComment(userInfo, postId, commentId);
+        return await deleteComment(effectiveUserInfo, postId, commentId);
       default:
         return {
           code: -2,

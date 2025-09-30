@@ -242,6 +242,18 @@ Page({
     };
 
     try {
+      // 调用login云函数确保用户登录状态传递到云端
+      const loginRes = await wx.cloud.callFunction({ name: 'login', data: {} });
+
+      // 增加对login函数返回结果的检查
+      if (!loginRes.result || loginRes.result.code !== 0 || !loginRes.result.data.openid) {
+        // 如果login云函数自己就没获取到openid，这里会抛出错误
+        throw new Error('登录检查失败: ' + (loginRes.result?.message || '无法获取 OPENID'));
+      }
+
+      // 作为备用方案，手动将获取到的 openid 传递给 manageComment 函数
+      data.debugOpenid = loginRes.result.data.openid;
+
       const res = await wx.cloud.callFunction({ name: 'manageComment', data });
       wx.hideLoading();
 
