@@ -23,7 +23,13 @@
 .big-heart { position: absolute; left: 0; right: 0; top: 120rpx; text-align: center; pointer-events: none; animation: pop 600ms ease forwards; }
 .card { position: relative; }
 .img-expand { position: absolute; right: 16rpx; bottom: 16rpx; background: rgba(0,0,0,0.5); color: #fff; font-size: 22rpx; padding: 6rpx 12rpx; border-radius: 999rpx; }
-.text { font-size: 30rpx; color: #2f3133; line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+.text {
+  font-size: 30rpx;
+  color: #2f3133;
+  line-height: 1.7;
+  white-space: pre-wrap; /* Allow text to wrap and preserve whitespace */
+  word-break: break-word; /* Break long words to prevent overflow */
+}
 
 .media-grid { display: grid; gap: 10rpx; margin-top: 14rpx; }
 .media-grid.length-1 { grid-template-columns: 1fr; }
