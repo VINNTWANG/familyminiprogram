@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "申请个人认证",
+  "usingComponents": {
+    "t-textarea": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/textarea/textarea",
+    "t-upload": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/upload/upload",
+    "t-button": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/button/button"
+  }
+}

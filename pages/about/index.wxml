@@ -1,0 +1,21 @@
+<view class="page-container">
+  <!-- Custom Navbar -->
+  <view class="native-navbar" style="height: {{navBarContentHeightRpx + statusBarHeightRpx}}rpx; padding-top: {{statusBarHeightRpx}}rpx;">
+    <view class="nav-content" style="height: {{navBarContentHeightRpx}}rpx;">
+      <view class="nav-left" bind:tap="navigateBack">
+        <view class="back-icon">〈</view>
+      </view>
+      <view class="nav-title">关于</view>
+      <view style="width: 100rpx;"></view> <!-- Placeholder -->
+    </view>
+  </view>
+
+  <!-- Main Content -->
+  <view class="container" style="padding-top: {{navBarContentHeightRpx + statusBarHeightRpx}}rpx;">
+    <view class="content-card">
+      <view class="app-name">家庭分享小程序</view>
+      <view class="app-version">Version 1.0.0</view>
+      <view class="app-description">一个专为家庭成员设计的私密、温馨的分享空间。</view>
+    </view>
+  </view>
+</view>

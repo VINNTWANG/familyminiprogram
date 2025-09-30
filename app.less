@@ -1,0 +1,93 @@
+/**
+ * app.less
+ * --------
+ * Global styles and TDesign base import.
+ */
+
+/* 1. Import TDesign base styles */
+@import '/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/common/index.wxss';
+
+/* 2. Import Design Tokens */
+@import 'variable.less';
+
+/* 3. Base Page & Font Styles */
+page {
+  background-color: @gray-1;
+  color: @gray-9;
+  font-size: @font-size-body-large;
+  line-height: @line-height-base;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Segoe UI, Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
+}
+
+/* 4. Layout Helpers */
+.container {
+  padding: @space-32 @space-24;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 5. Common Surfaces */
+.card {
+  background: #ffffff;
+  border-radius: @border-radius-lg;
+  box-shadow: @shadow-2;
+  overflow: hidden; /* Ensures content respects border-radius */
+}
+
+/* 6. Spacing Utilities */
+.margin-top-xs { margin-top: @space-8; }
+.margin-top-sm { margin-top: @space-16; }
+.margin-top-md { margin-top: @space-24; }
+.margin-top-lg { margin-top: @space-32; }
+
+.margin-bottom-xs { margin-bottom: @space-8; }
+.margin-bottom-sm { margin-bottom: @space-16; }
+.margin-bottom-md { margin-bottom: @space-24; }
+.margin-bottom-lg { margin-bottom: @space-32; }
+
+.padding-xs { padding: @space-8; }
+.padding-sm { padding: @space-16; }
+.padding-md { padding: @space-24; }
+.padding-lg { padding: @space-32; }
+
+/* 7. Typography Utilities */
+.text-primary { color: @brand-color; }
+.text-secondary { color: @gray-6; }
+.text-placeholder { color: @gray-5; }
+.text-disabled { color: @gray-4; }
+.text-error { color: @error-color; }
+
+.font-bold { font-weight: 600; }
+.font-size-title { font-size: @font-size-title; }
+.font-size-caption { font-size: @font-size-caption; }
+
+/* 8. Force local icon font to avoid CDN fetch */
+@font-face {
+  font-family: 't-icon';
+  src: url('/static/tdesign-icon/fonts/t.woff') format('woff'),
+       url('/static/tdesign-icon/fonts/t.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: auto;
+}

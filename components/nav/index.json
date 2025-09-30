@@ -1,0 +1,11 @@
+{
+  "component": true,
+  "usingComponents": {
+    "t-navbar": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/navbar/navbar",
+    "t-drawer": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/drawer/drawer",
+    "t-search": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/search/search",
+    "t-icon": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/icon/icon"
+  }
+}
+
+

@@ -1,0 +1,90 @@
+<!-- E:\Users\wntwa\WeChatProjects\miniprogram-1\components\post-card\index.wxml (Tooltip Redesign) -->
+<view class="post-card {{pressed ? 'pressed' : ''}}" bindtouchstart="onTouchStart" bindtouchend="onTouchEnd" bindtap="onCardTap">
+  <view class="card">
+    <view class="header">
+      <navigator class="avatar {{isHot ? 'hot' : ''}}" url="/pages/user-profile/index?_openid={{post.authorInfo._openid}}">
+        <t-avatar image="{{post.authorInfo && post.authorInfo.avatarUrl ? post.authorInfo.avatarUrl : ''}}" size="large" />
+      </navigator>
+      <view class="meta">
+        <view class="row">
+          <view class="row-left">
+            <text class="name">{{post.authorInfo.nickName}}</text>
+            <text class="family-name" wx:if="{{post.authorInfo.familyName}}">@{{post.authorInfo.familyName}}</text>
+            <view class="badges-wrapper">
+              <view wx:if="{{isAdmin}}" bind:longpress="showAdminTooltip">
+                <t-icon name="check-circle-filled" size="32rpx" color="gold" />
+              </view>
+              <view wx:if="{{post.authorInfo.role === '个人认证'}}">
+                <t-icon name="check-circle-filled" size="32rpx" color="#0052D9" />
+              </view>
+            </view>
+          </view>
+          <view class="row-right">
+            <text class="hot" wx:if="{{isHot}}">热门</text>
+            <text class="time">{{post.timestamp}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="content">
+      <view class="big-heart" wx:if="{{showBigHeart}}"><t-icon name="heart-filled" size="56" color="#e34d59" /></view>
+      <view class="text">{{post.content}}</view>
+
+      <!-- Media Views -->
+      <view class="media-grid length-{{mediaDisplay.length}}" wx:if="{{mediaDisplay && mediaDisplay.length > 0}}">
+        <block wx:for="{{mediaDisplay}}" wx:for-item="item" wx:key="src">
+          <view class="media-item {{item.type === 'video' ? 'video-item' : ''}}" bind:tap="onMediaTap" data-index="{{index}}">
+            <image class="grid-image" src="{{item.thumb}}" mode="aspectFill" wx:if="{{item.type === 'image'}}" />
+            <image class="grid-image" src="{{item.thumb}}" mode="aspectFill" wx:if="{{item.type === 'video'}}" />
+            <view wx:if="{{item.type === 'video'}}" class="play-icon-overlay">
+              <view class="play-icon">▶</view>
+            </view>
+          </view>
+        </block>
+      </view>
+
+      <!-- Audio Player -->
+      <view class="audio-player-container" wx:if="{{displayAudio}}">
+        <view class="audio-chip" catch:tap="onAudioTap" data-url="{{post.displayAudio.url}}">
+          <t-icon name="{{isAudioPlaying ? 'stop-circle' : 'play-circle'}}" size="40rpx" />
+          <text class="audio-text">{{isAudioPlaying ? '正在播放...' : '语音消息'}}</text>
+          <text class="audio-duration">{{post.displayAudio.durationStr}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="reactions-summary" wx:if="{{displayReactions && displayReactions.length}}">
+      <view class="chip" wx:for="{{displayReactions}}" wx:key="emoji">
+        <text class="emoji">{{item.emoji}}</text>
+        <text class="count">{{item.count}}</text>
+      </view>
+    </view>
+
+    <view class="divider" />
+
+    <view class="footer" wx:if="{{!hideFooter}}">
+      <view class="actions">
+        <view class="action-item {{liked ? 'liked' : ''}}" catch:tap="onLike">
+          <t-icon name="heart-filled" size="36rpx" class="like-icon {{likeAnimationClass}}" />
+          <text class="label">{{likeCount || 0}}</text>
+        </view>
+        <view class="action-item" catch:tap="onComment">
+          <t-icon name="chat" size="36rpx" />
+          <text class="label">{{post.commentCount || 0}}</text>
+        </view>
+        <view class="action-item" catch:tap="onToggleReactionPanel">
+          <text class="action-icon-emoji">😊</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Reaction Popup Layer -->
+  <view class="popup-layer" wx:if="{{showReactionPopup}}">
+    <view class="popup-overlay" bind:tap="onToggleReactionPanel"></view>
+    <view class="reaction-popup">
+      <text class="emoji" wx:for="{{availableReactions}}" wx:key="*this" catch:tap="onSelectReaction" data-emoji="{{item}}">{{item}}</text>
+    </view>
+  </view>
+</view>

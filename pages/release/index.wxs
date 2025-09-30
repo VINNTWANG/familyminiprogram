@@ -1,0 +1,15 @@
+var filterMedia = function(mediaFiles) {
+  var result = [];
+  if (mediaFiles) {
+    for (var i = 0; i < mediaFiles.length; i++) {
+      if (mediaFiles[i].type !== 'audio') {
+        result.push(mediaFiles[i]);
+      }
+    }
+  }
+  return result;
+};
+
+module.exports = {
+  filterMedia: filterMedia
+};

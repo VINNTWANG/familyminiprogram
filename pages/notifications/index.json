@@ -1,0 +1,13 @@
+{
+  "navigationBarTitleText": "通知中心",
+  "usingComponents": {
+    "t-navbar": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/navbar/navbar",
+    "t-cell": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/cell/cell",
+    "t-cell-group": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/cell-group/cell-group",
+    "t-button": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/button/button",
+    "t-badge": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/badge/badge",
+    "t-avatar": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/avatar/avatar",
+    "t-empty": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/empty/empty"
+  },
+  "navigationStyle": "custom"
+}

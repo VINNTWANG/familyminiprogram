@@ -1,0 +1,10 @@
+{
+  "usingComponents": {
+    "t-navbar": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/navbar/navbar",
+    "t-avatar": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/avatar/avatar",
+    "post-card": "/components/post-card/index"
+  },
+  "navigationStyle": "custom"
+}
+
+

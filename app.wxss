@@ -1,0 +1,141 @@
+/* Global styles for the mini program UI polish */
+@font-face {
+  font-family: "t-icon";
+  src: url('/static/tdesign-icon/fonts/t.woff') format('woff'),
+       url('/static/tdesign-icon/fonts/t.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: auto;
+}
+page {
+  background-color: #f7f8fa;
+  color: #1f2329;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+.page {
+  padding: 16rpx 20rpx 24rpx;
+}
+
+/* Typography */
+.title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #0a0a0a;
+}
+.subtitle {
+  font-size: 28rpx;
+  color: #646a73;
+}
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1d2129;
+}
+.text-muted {
+  color: #8a9299;
+}
+
+/* Layout helpers */
+.container {
+  padding: 24rpx 24rpx 32rpx 24rpx;
+}
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+}
+.between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Surfaces */
+.card {
+  background: #ffffff;
+  border-radius: 20rpx;
+  box-shadow: 0 6rpx 24rpx rgba(0, 0, 0, 0.06);
+}
+.rounded {
+  border-radius: 20rpx;
+}
+.shadow-sm {
+  box-shadow: 0 4rpx 14rpx rgba(0,0,0,0.05);
+}
+.shadow-md {
+  box-shadow: 0 10rpx 28rpx rgba(0,0,0,0.08);
+}
+
+/* Spacing */
+.mt-8 { margin-top: 8rpx; }
+.mt-16 { margin-top: 16rpx; }
+.mt-24 { margin-top: 24rpx; }
+.mt-32 { margin-top: 32rpx; }
+.mb-8 { margin-bottom: 8rpx; }
+.mb-16 { margin-bottom: 16rpx; }
+.mb-24 { margin-bottom: 24rpx; }
+.mb-32 { margin-bottom: 32rpx; }
+.px-24 { padding-left: 24rpx; padding-right: 24rpx; }
+.py-16 { padding-top: 16rpx; padding-bottom: 16rpx; }
+
+/* Primary brand align with TDesign (#0052D9) */
+.btn-primary {
+  background: #0052D9;
+  color: #ffffff;
+}
+.chip {
+  background: #f2f3f5;
+  color: #1f2329;
+  border-radius: 999rpx;
+  padding: 8rpx 16rpx;
+}
+
+/* Floating buttons / Back to top */
+.fab {
+  width: 108rpx;
+  height: 108rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, #0052D9 0%, #2E67FF 100%);
+  color: #ffffff;
+  box-shadow: 0 12rpx 28rpx rgba(0, 82, 217, 0.35);
+}
+.fab.pressed {
+  transform: scale(0.96);
+  opacity: 0.95;
+}
+.backtop {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 8rpx 22rpx rgba(0,0,0,0.12);
+}
+
+/* Animation */
+.fade-up {
+  opacity: 0;
+  transform: translate3d(0, 16rpx, 0);
+  animation: fadeUp 420ms ease forwards;
+}
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Scroll containers */
+.scroll-padding {
+  padding-bottom: env(safe-area-inset-bottom);
+}

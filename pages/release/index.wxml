@@ -1,0 +1,91 @@
+﻿<!-- E:\Users\wntwa\WeChatProjects\miniprogram-1\pages\release\index.wxml (Inline Recording UI) -->
+<wxs src="./index.wxs" module="tools" />
+<t-navbar title="{{i18n.composeTitle}}" left-arrow bind:go-back="onBack" />
+<view class="page">
+  <view class="release-container">
+    <!-- Textarea with counter -->
+    <view class="content-input">
+      <t-textarea
+        placeholder="{{i18n.placeholder}}"
+        value="{{content}}"
+        bind:change="onContentChange"
+        maxlength="-1"
+      />
+      <view class="char-counter {{remainingCount < 0 ? 'over' : ''}}" style="position: relative; left: 641rpx; top: 0rpx">{{content.length}}/{{ maxTextLen }}</view>
+    </view>
+
+    <!-- Media preview section -->
+    <view class="upload-section" style="position: relative; left: 20rpx; top: 0rpx; width: 750rpx; display: block; box-sizing: border-box">
+      <!-- t-upload for images and videos -->
+      <t-upload 
+        media-type="{{['image','video']}}" 
+        files="{{tools.filterMedia(mediaFiles)}}" 
+        bind:success="onMediaSuccess" 
+        bind:remove="onMediaRemove" 
+        max="9"
+      />
+      
+      <!-- Custom display for audio file -->
+      <view wx:for="{{mediaFiles}}" wx:key="url" class="custom-media-item-wrapper">
+        <block wx:if="{{item.type === 'audio'}}">
+          <view class="audio-item" catchtap="onAudioPreviewTap" data-index="{{index}}">
+            <view class="audio-play-icon-wrapper {{item.isPlaying ? 'is-playing' : ''}}">
+                <t-icon name="{{item.isPlaying ? 'stop-circle' : 'play-circle'}}" size="64rpx" class="audio-play-icon" />
+            </view>
+            <text class="audio-duration">{{item.duration}}{{i18n.sec}} {{i18n.voiceLabel}}</text>
+            <view class="audio-delete-icon-wrapper" catchtap="onMediaRemove" data-file="{{item}}">
+                <t-icon name="close-circle-filled" size="48rpx" class="audio-delete-icon" />
+            </view>
+          </view>
+        </block>
+      </view>
+    </view>
+
+    <!-- Voice actions -->
+    <view class="voice-section">
+      <!-- Not Recording State -->
+      <view wx:if="{{!isRecording}}" class="voice-actions" style="width: 733rpx; display: block; box-sizing: border-box">
+        <t-button t-class="voice-action-btn" variant="outline" size="small" bind:tap="onRecordTap">
+          <t-icon name="mic" size="20" /> {{i18n.recordStart}}
+        </t-button>
+        <text wx:if="{{!isRecording}}" class="record-tip" style="position: relative; left: 29rpx; top: 11rpx">(最多1条，会覆盖之前的录音)</text>
+      </view>
+
+      <!-- Recording State - Inline UI -->
+      <view wx:if="{{isRecording}}" class="inline-recorder">
+        <view class="recording-progress-bar">
+          <view class="fill" style="{{recordingPercentStyle}}"></view>
+        </view>
+        <view class="recording-controls">
+          <t-button t-class="inline-recorder-btn" shape="round" theme="danger" variant="base" bind:tap="cancelRecording">
+            <t-icon name="close" size="36rpx"/>
+          </t-button>
+          <view class="timer-display">
+            <view class="red-dot"></view>
+            {{recordingElapsed}}s
+          </view>
+          <t-button t-class="inline-recorder-btn" shape="round" theme="primary" bind:tap="stopRecording" data-keep="true">
+            <t-icon name="check" size="36rpx"/>
+          </t-button>
+        </view>
+      </view>
+    </view>
+
+    <!-- Footer: centered publish button -->
+    <view class="composer-footer">
+      <view class="actions actions-center">
+        <view class="btn-wrap" style="position: relative; left: 189rpx; top: 48rpx">
+          <t-button theme="primary" size="large" shape="round" bind:tap="onRelease" t-class="submit-btn" disabled="{{!canSubmit || isPublishing}}">
+            <block wx:if="{{isPublishing}}">
+              <t-loading theme="white" size="40rpx" />
+              <text class="publishing-text">发布中... ({{publishingProgress}}%)</text>
+            </block>
+            <block wx:else>
+              {{i18n.publish}}
+            </block>
+          </t-button>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

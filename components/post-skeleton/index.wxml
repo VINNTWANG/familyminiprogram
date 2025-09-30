@@ -1,0 +1,3 @@
+<view class="post-skeleton">
+  <t-skeleton row-col="{{ [{ size: '48px', type: 'circle' }, { type: 'text', width: '80%' }] }}" />
+</view>

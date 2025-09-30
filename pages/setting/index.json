@@ -1,0 +1,12 @@
+{
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "t-navbar": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/navbar/navbar",
+    "t-cell-group": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/cell-group/cell-group",
+    "t-cell": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/cell/cell",
+    "t-icon": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/icon/icon",
+    "t-toast": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/toast/toast"
+  }
+}
+
+

@@ -1,0 +1,192 @@
+/* pages/home/index.less */
+@import '../../variable.less';
+
+.home-page {
+  background-color: @gray-1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  height: 100%;
+}
+
+/* Hero Section */
+.home-hero-wrapper {
+  padding: @space-24 @space-24 0 @space-24;
+}
+
+.home-hero {
+  background: linear-gradient(135deg, lighten(@brand-color-light, 2%), #ffffff);
+  border-radius: @border-radius-lg;
+  padding: @space-32;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: @space-24;
+}
+
+.user-texts {
+  display: flex;
+  flex-direction: column;
+  gap: @space-4;
+}
+
+.user-greeting {
+  font-size: @font-size-subheading;
+  font-weight: 600;
+  color: @gray-9;
+}
+
+.user-sub-greeting {
+  font-size: @font-size-body;
+  color: @gray-6;
+}
+
+/* Banner Section */
+.home-banner {
+  padding: @space-24;
+  .banner-swiper {
+    height: 280rpx;
+    border-radius: @border-radius-lg;
+    overflow: hidden;
+    box-shadow: @shadow-2;
+  }
+  .banner-img {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* Quick Actions */
+.quick-actions-container {
+  padding: 0 @space-16 @space-16 @space-16;
+}
+
+.quick-actions-grid {
+  gap: @space-16 !important; /* Override default grid gap */
+}
+
+.quick-action-item {
+  background: #fff;
+  border-radius: @border-radius-lg !important;
+  padding: @space-24 0;
+  box-shadow: @shadow-1;
+  color: @gray-8 !important;
+  font-size: @font-size-caption !important;
+  display: flex;
+  flex-direction: column;
+  gap: @space-8;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:active {
+    transform: scale(0.97);
+    box-shadow: none;
+  }
+}
+
+/* Post List */
+.post-list-container {
+  padding: 0 @space-24;
+}
+
+.post-list {
+  padding-bottom: @space-32;
+}
+
+.post-item-wrapper {
+  margin-bottom: @space-24;
+}
+
+/* List Footer */
+.list-footer {
+  padding: @space-32 0;
+  text-align: center;
+}
+
+.end-of-list {
+  color: @gray-5;
+  font-size: @font-size-caption;
+}
+
+/* Empty State */
+.empty-state {
+  padding: 120rpx 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: @space-24;
+}
+
+.empty-state-btn {
+  margin-top: @space-16;
+}
+
+/* Back to Top FAB */
+.back-to-top-fab {
+  position: fixed;
+  right: @space-32;
+  bottom: calc(@tab-bar-height + 320rpx);
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: @border-radius-round;
+  background: #ffffff;
+  color: @brand-color;
+  box-shadow: @shadow-3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99;
+  transition: transform 0.2s;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Fade-up Animation */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translate3d(0, 20rpx, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+.fade-up {
+  animation: fadeUp 400ms ease-out both;
+}
+
+/* Add padding to scroll view to avoid content being hidden by tab bar */
+.main-content {
+  padding-bottom: @tab-bar-height;
+}
+
+/* Release FAB on Home */
+.release-fab {
+  position: fixed;
+  right: @space-32;
+  bottom: calc(@tab-bar-height + 200rpx);
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: @border-radius-round;
+  background: #1D9BF0; /* X/Twitter blue */
+  color: #fff;
+  box-shadow: @shadow-3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: transform 0.22s ease, opacity 0.22s ease;
+  will-change: transform, opacity;
+
+  &:active { transform: scale(0.96); }
+}
+
+.release-fab.is-hidden {
+  transform: translateY(160%);
+  opacity: 0;
+}

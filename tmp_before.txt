@@ -1,0 +1,80 @@
+<view class="thread-card-root">
+  <!-- Author Info -->
+  <view class="header" bind:tap="onCardTap">
+    <image class="avatar" src="{{post.authorInfo.avatarUrl}}" />
+    <view class="meta">
+      <view class="name-line">
+        <text class="name">{{post.authorInfo.nickName}}</text>
+        <view class="badges-wrapper">
+          <view wx:if="{{post.authorInfo.isAdmin}}">
+            <t-icon name="check-circle-filled" size="32rpx" color="gold" />
+          </view>
+          <view wx:if="{{post.authorInfo.role === '个人认证'}}">
+            <t-icon name="check-circle-filled" size="32rpx" color="#0052D9" />
+          </view>
+        </view>
+      </view>
+      <view class="time">{{post.timestamp}}</view>
+      <view wx:if="{{index === 3 && post.mediaMoreCount > 0}}" class="more-mask">+{{post.mediaMoreCount}}</view>
+    </view>
+  </view>
+
+  <!-- Content -->
+  <view class="content-text" wx:if="{{post.content}}" bind:tap="onCardTap">{{post.content}}</view>
+
+  <!-- Unified Media Grid (for Images and Videos) -->
+  <view class="media-grid length-{{post.mediaGrid.length}}" wx:if="{{post.mediaGrid && post.mediaGrid.length > 0}}" bind:tap="onCardTap">
+    <view class="media-item" wx:for="{{post.mediaGrid}}" wx:for-index="index" wx:key="index">
+      <image wx:if="{{item.type !== 'audio'}}" class="grid-image" src="{{item.src}}" mode="aspectFill" />
+      <view wx:elif="{{item.type === 'audio'}}" class="audio-tile"><t-icon name="mic" size="56rpx" color="#ffffff" /></view>
+      <!-- Extra overlay icon to ensure visible play symbol on videos -->
+      <view wx:if="{{item.type === 'video'}}" class="play-icon-overlay">
+        <t-icon name="play-circle-filled" size="56rpx" color="#ffffff" />
+      </view>
+      <view wx:if="{{item.type === 'video'}}" class="play-icon-overlay">
+        <view class="play-icon">�?/view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Audio Player -->
+  <view class="audio-player-container" wx:if="{{post.displayAudio}}">
+    <view class="audio-chip" catch:tap="playAudio">
+      <t-icon name="{{post.displayAudio.playing ? 'stop-circle' : 'play-circle'}}" size="40rpx" />
+      <text class="audio-text">{{post.displayAudio.playing ? '正在播放...' : '语音消息'}}</text>
+      <text class="audio-duration">{{post.displayAudio.durationStr}}</text>
+    </view>
+  </view>
+
+  <!-- Reactions Summary -->
+  <view class="reactions-summary" wx:if="{{post.reactionSummary && post.reactionSummary.length}}">
+    <view class="chip" wx:for="{{post.reactionSummary}}" wx:key="emoji">
+      <text class="emoji">{{item.emoji}}</text>
+      <text class="count">{{item.count}}</text>
+    </view>
+  </view>
+
+  <!-- Actions -->
+  <view class="actions">
+    <view class="action-item {{post.liked ? 'liked' : ''}}" catch:tap="onLike">
+      <t-icon name="heart-filled" size="36rpx" class="like-icon {{likeAnimationClass}}" />
+      <text class="label">{{post.likeCount || 0}}</text>
+    </view>
+    <view class="action-item" catch:tap="onComment">
+      <t-icon name="chat" size="36rpx" />
+      <text class="label">{{post.commentCount || 0}}</text>
+    </view>
+    <view class="action-item" catch:tap="onToggleReactionPanel">
+      <text class="action-icon-emoji">😊</text>
+    </view>
+  </view>
+
+  <!-- Reaction Popup Layer -->
+  <view class="popup-layer" wx:if="{{showReactionPanel}}">
+    <view class="popup-overlay" bind:tap="onToggleReactionPanel"></view>
+    <view class="reaction-popup">
+      <text class="emoji" wx:for="{{availableReactions}}" wx:key="*this" catch:tap="onSelectReaction" data-emoji="{{item}}">{{item}}</text>
+    </view>
+  </view>
+</view>
+

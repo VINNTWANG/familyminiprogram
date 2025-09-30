@@ -1,0 +1,9 @@
+/* Minimal styles to align post-card with thread-item visuals */
+
+.audio-player-container { margin-top: 16rpx; }
+.audio-chip { display: inline-flex; align-items: center; gap: 12rpx; background-color: #f0f2f5; padding: 16rpx 24rpx; border-radius: 40rpx; font-size: 28rpx; color: #1f2329; }
+.audio-chip:active { background-color: #e5e6eb; }
+.audio-text { font-weight: 500; }
+.audio-duration { color: #8a9299; }
+
+.play-icon-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: rgba(0,0,0,0.2); }

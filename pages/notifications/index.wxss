@@ -1,0 +1,15 @@
+page { background: #f7f8fa; }
+.page { padding: 12rpx 12rpx 24rpx; }
+
+/* TDesign cell groups already styled; add spacing + softer titles */
+.t-cell-group__title {
+  font-size: 26rpx !important;
+  color: #8a9299 !important;
+}
+
+.t-cell {
+  background: #fff !important;
+  border-radius: 16rpx !important;
+  margin: 12rpx 8rpx !important;
+  box-shadow: 0 6rpx 18rpx rgba(0,0,0,0.05);
+}

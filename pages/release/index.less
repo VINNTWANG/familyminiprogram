@@ -1,0 +1,123 @@
+/* E:\Users\wntwa\WeChatProjects\miniprogram-1\pages\release\index.less (Inline Recording UI) */
+
+.release-container {
+  padding-bottom: 180rpx; // Add padding to avoid overlap with the footer
+
+  .voice-section {
+    margin-top: 20rpx;
+    .voice-actions {
+      text-align: center; // Center the button
+    }
+  }
+
+  // Class for the main record button
+  .voice-action-btn {
+    width: 300rpx; // Make the button shorter
+    margin: 0 auto !important; 
+  }
+
+  // New Inline Recorder Styles
+  .inline-recorder {
+    width: 100%;
+    background-color: #f7f8fa;
+    border-radius: 16rpx;
+    padding: 16rpx;
+    box-sizing: border-box;
+    box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+
+    .recording-progress-bar {
+      height: 6rpx;
+      background-color: #e9e9e9;
+      border-radius: 3rpx;
+      overflow: hidden;
+      .fill {
+        height: 100%;
+        background-color: #0052d9; // t-design primary color
+        border-radius: 3rpx;
+      }
+    }
+
+    .recording-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12rpx;
+
+      .timer-display {
+        font-size: 28rpx;
+        color: #e54d42; // danger color
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+
+        .red-dot {
+          width: 16rpx;
+          height: 16rpx;
+          background-color: #e54d42;
+          border-radius: 50%;
+          margin-right: 12rpx;
+          animation: pulse-red 1.5s infinite;
+        }
+      }
+    }
+  }
+
+  .inline-recorder-btn.t-button {
+    width: 80rpx !important;
+    height: 80rpx !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Style for the custom audio item */
+  .audio-item {
+    background-color: #f7f8fa; // A light grey background
+    border-radius: 40rpx;
+    padding: 16rpx 24rpx;
+    box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    margin: 16rpx 0;
+
+    &:active { // Add a tap effect
+      transform: scale(0.98);
+      box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.08);
+    }
+
+    .audio-play-icon-wrapper {
+      margin-right: 16rpx;
+    }
+
+    .audio-duration {
+      flex: 1; // Take up available space
+    }
+  }
+
+  /* Pulsing animation for the play icon */
+  .is-playing .audio-play-icon {
+    animation: pulse-blue 1.5s infinite;
+  }
+}
+
+@keyframes pulse-blue {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-red {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}

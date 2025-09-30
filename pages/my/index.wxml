@@ -1,0 +1,84 @@
+<view class="my-page-container">
+  <!-- Custom Navbar Placeholder -->
+  <view class="custom-navbar-placeholder" style="height: {{statusBarHeightRpx + navBarContentHeightRpx}}rpx;"></view>
+
+  <!-- Logged In View -->
+  <block wx:if="{{isLoad}}">
+    <!-- Header -->
+    <view class="profile-header">
+      <image class="cover-photo" src="/static/home/card4.png" mode="aspectFill" />
+      <view class="profile-picture-area">
+        <view class="profile-picture-border">
+          <t-avatar image="{{personalInfo.avatarUrl}}" size="160rpx" />
+        </view>
+      </view>
+    </view>
+
+    <!-- User Info -->
+    <view class="user-info-area">
+              <view class="nickname-line">
+            <view class="nickname">{{personalInfo.nickName}}</view>
+            <view wx:if="{{personalInfo.isAdmin}}" bind:longpress="showAdminTooltip">
+              <t-icon name="check-circle-filled" size="44rpx" color="gold" />
+            </view>
+          <view wx:if="{{personalInfo.role === '个人认证'}}">
+            <t-icon name="check-circle-filled" size="44rpx" color="#0052D9" />
+          </view>          </view>    </view>
+
+    <!-- Tab Bar -->
+    <view class="content-tabs">
+      <view class="tab {{activeTab === 'posts' ? 'active' : ''}}" bind:tap="handleTabSwitch" data-tab="posts">动态</view>
+      <view class="tab {{activeTab === 'profile' ? 'active' : ''}}" bind:tap="handleTabSwitch" data-tab="profile">资料</view>
+    </view>
+
+    <!-- Tab Content -->
+    <view class="tab-content">
+      <!-- Posts Content -->
+      <view wx:if="{{activeTab === 'posts'}}" class="posts-container">
+        <block wx:if="{{isLoading}}">
+          <post-skeleton />
+        </block>
+        <block wx:elif="{{userPosts.length > 0}}">
+          <block wx:for="{{userPosts}}" wx:key="_id">
+            <thread-item post="{{item}}" is-admin="{{personalInfo.isAdmin}}" bind:openDetail="openDetailFromCard" />
+          </block>
+        </block>
+        <block wx:else>
+          <t-empty description="你还没有发布过任何动态" />
+        </block>
+      </view>
+
+      <!-- Profile Content -->
+      <view wx:if="{{activeTab === 'profile'}}" class="profile-content-container">
+        <view class="info-card">
+          <view class="info-row" bind:tap="goNotifications">
+            <text class="info-label">通知中心</text>
+            <t-icon name="chevron-right" size="40rpx" class="cell-arrow" />
+          </view>
+          <view class="info-row admin-cell" wx:if="{{personalInfo.isAdmin}}" bind:tap="goToAdminPage">
+            <text class="info-label">审核中心</text>
+            <t-icon name="chevron-right" size="40rpx" class="cell-arrow" />
+          </view>
+          <view class="info-row" bind:tap="goPersonalVerify">
+            <text class="info-label">个人认证</text>
+            <t-icon name="chevron-right" size="40rpx" class="cell-arrow" />
+          </view>
+        </view>
+        <view class="logout-btn-container">
+           <t-button theme="danger" variant="light" content="退出登录" block shape="round" size="large" bind:tap="onLogout" />
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- Login Prompt View -->
+  <view wx:else class="login-prompt-container">
+    <view class="login-title">欢迎来到家庭社区</view>
+    <button class="avatar-wrapper" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+      <image class="avatar-image" src="{{ tempAvatarUrl || '/static/avatar1.png' }}"></image>
+    </button>
+    <view class="login-tip">点击上方选择头像</view>
+    <input class="nickname-input" type="text" placeholder="请输入昵称" value="{{tempNickName}}" bindinput="onNicknameInput" />
+    <t-button theme="primary" size="large" shape="round" bindtap="onLogin" style="margin-top: 40rpx;">授权并登录</t-button>
+  </view>
+</view>

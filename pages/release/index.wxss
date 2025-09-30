@@ -1,0 +1,132 @@
+page { background: #f7f8fa; }
+.page { padding: 16rpx 20rpx 24rpx; }
+
+.release-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.content-input, .upload-section, .voice-section {
+  background: #ffffff;
+  border-radius: 20rpx;
+  padding: 16rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.06);
+}
+
+/* Counter inside textarea card */
+.content-input { position: relative; }
+.char-counter {
+  position: absolute;
+  right: 16rpx;
+  bottom: 12rpx;
+  font-size: 24rpx;
+  color: #8a9299;
+}
+.char-counter.over { color: #E34D59; }
+
+.voice-actions { display: flex; gap: 12rpx; align-items: center; }
+.voice-duration { color: #8a9299; font-size: 24rpx; }
+
+.btngroup { margin-top: 10rpx; }
+
+/* Publish button polish */
+.submit-btn {
+  display: inline-block;
+  background: #1D9BF0 !important;
+  border-color: #1D9BF0 !important;
+  color: #ffffff !important;
+  min-width: 140rpx;
+  height: 64rpx;
+  line-height: 64rpx;
+  padding: 0 24rpx;
+}
+.submit-btn .btn-icon {
+  margin-right: 4rpx;
+  vertical-align: middle;
+}
+.submit-btn.t-button--disabled {
+  background: #A8D8FB !important;
+  border-color: #A8D8FB !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Counter below textarea */
+.content-input { position: relative; }
+.char-counter {
+  position: absolute;
+  right: 16rpx;
+  bottom: 8rpx;
+  font-size: 24rpx;
+  color: #8a9299;
+}
+.char-counter.over { color: #E34D59; }
+
+/* Toolbar */
+/* Footer bar layout */
+.composer-footer {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border-top: 1rpx solid #f0f2f5;
+  padding: 12rpx 16rpx env(safe-area-inset-bottom) 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  z-index: 10;
+}
+.composer-footer .actions { display: flex; align-items: center; justify-content: center; gap: 16rpx; width: 100%; text-align: center; }
+.composer-footer .btn-wrap { display: flex; width: 100%; justify-content: center; }
+.composer-footer .actions .submit-btn { margin: 0 auto; }
+
+/* Hide default add tile to avoid重复入口（用工具栏触发选择） */
+.upload-section .t-upload__add { display: none; }
+
+/* (removed) Floating Publish FAB styles were here */
+
+/* Recording HUD */
+.recording-hud {
+  position: fixed;
+  left: 0; right: 0;
+  bottom: calc(120rpx + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.recording-hud .hud-inner {
+  background: #ffffff;
+  border-radius: 9999rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.12);
+  padding: 12rpx 20rpx;
+  display: inline-flex;
+  align-items: center;
+  gap: 16rpx;
+}
+.recording-hud .mic-pulse {
+  width: 40rpx; height: 40rpx; border-radius: 50%;
+  background: #E34D59;
+  display: flex; align-items: center; justify-content: center;
+  animation: pulse 1s ease-in-out infinite;
+  color: #fff;
+}
+.recording-hud .hud-timer { font-size: 26rpx; color: #1f2329; min-width: 160rpx; text-align: center; }
+.recording-hud .hud-progress { min-width: 260rpx; }
+.recording-hud .hud-progress .bar {
+  width: 100%; height: 10rpx;
+  background: #f2f3f5; border-radius: 999rpx; overflow: hidden;
+}
+.recording-hud .hud-progress .fill {
+  height: 100%; background: #1D9BF0; width: 0%; transition: width 0.2s ease;
+}
+.recording-hud .hud-actions { display: inline-flex; gap: 12rpx; }
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(227,77,89,0.6); }
+  70% { box-shadow: 0 0 0 18rpx rgba(227,77,89,0); }
+  100% { box-shadow: 0 0 0 0 rgba(227,77,89,0); }
+}

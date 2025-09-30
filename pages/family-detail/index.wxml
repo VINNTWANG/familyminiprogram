@@ -1,0 +1,18 @@
+<t-navbar title="家庭空间" left-arrow />
+<view class="page" wx:if="{{family}}">
+  <view class="header">
+    <view class="name">{{family.name}}</view>
+    <view class="members">
+      <t-avatar wx:for="{{members}}" wx:key="_openid" size="small" image="{{item.avatarUrl}}" />
+    </view>
+  </view>
+  <view class="posts" wx:if="{{posts.length>0}}">
+    <post-card wx:for="{{posts}}" wx:key="_id" post="{{item}}" bind:openDetail="openDetailFromCard" />
+  </view>
+  <view wx:else style="padding: 24rpx;">
+    <t-empty description="暂时还没有家庭动态" />
+  </view>
+</view>
+<view wx:else style="padding: 24rpx;">
+  <t-empty description="你还没有加入家庭，可前往“家庭认证”申请" />
+</view>

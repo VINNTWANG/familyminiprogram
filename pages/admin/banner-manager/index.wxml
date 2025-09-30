@@ -1,0 +1,18 @@
+<view class="container">
+  <view class="header">
+    <t-button theme="primary" bind:tap="onUpload" block>上传新 Banner</t-button>
+    <view class="tip">建议尺寸 750*280</view>
+  </view>
+
+  <view class="banner-list">
+    <block wx:if="{{banners.length > 0}}">
+      <view class="banner-item" wx:for="{{banners}}" wx:key="_id">
+        <image class="banner-image" src="{{item.imageUrl}}" mode="aspectFill" bind:tap="previewImage" data-src="{{item.imageUrl}}"/>
+        <view class="delete-btn" bind:tap="onDelete" data-id="{{item._id}}" data-file-id="{{item.fileId}}">
+          <t-icon name="delete" color="#e34d59" size="48rpx"/>
+        </view>
+      </view>
+    </block>
+    <t-empty wx:else description="暂无 Banner 图片" />
+  </view>
+</view>

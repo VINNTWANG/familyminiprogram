@@ -1,0 +1,111 @@
+<view class="page-container">
+  <!-- Custom Navbar -->
+  <view class="native-navbar" style="height: {{navBarContentHeightRpx + statusBarHeightRpx}}rpx; padding-top: {{statusBarHeightRpx}}rpx;">
+    <view class="nav-content" style="height: {{navBarContentHeightRpx}}rpx;">
+      <view class="nav-left" bind:tap="navigateBack">
+        <view class="back-icon">〈</view>
+      </view>
+      <view class="nav-title">审核列表</view>
+      <view style="width: 100rpx;"></view> <!-- Placeholder -->
+    </view>
+  </view>
+
+  <view class="container" style="padding-top: {{navBarContentHeightRpx + statusBarHeightRpx}}rpx;">
+
+  <!-- Tabs -->
+  <view class="content-tabs">
+    <view class="tab {{activeTab === 'pending' ? 'active' : ''}}" bind:tap="handleTabSwitch" data-tab="pending">待审核</view>
+    <view class="tab {{activeTab === 'processed' ? 'active' : ''}}" bind:tap="handleTabSwitch" data-tab="processed">已处理</view>
+  </view>
+
+  <!-- Pending List -->
+  <view class="list-container" wx:if="{{activeTab === 'pending'}}">
+    <block wx:if="{{isLoading}}">
+      <view class="loading-text">加载中...</view>
+    </block>
+    <block wx:elif="{{applications.length > 0}}">
+      <view class="application-card" wx:for="{{applications}}" wx:key="_id">
+        <!-- ... existing card content ... -->
+        <view class="applicant-info">
+          <t-avatar image="{{item.applicantInfo.avatarUrl}}" />
+          <view class="applicant-name">{{item.applicantInfo.nickName}}</view>
+          <view class="apply-time">{{item.createTime}}</view>
+        </view>
+        <view class="content-section">
+          <block wx:if="{{item.type === 'personal'}}">
+            <view class="note" wx:if="{{item.note}}">留言：{{item.note}}</view>
+            <view class="selfie-container" wx:if="{{item.selfieUrl}}">
+              <image class="selfie-image" src="{{item.selfieUrl}}" mode="aspectFit" bind:tap="previewImage" data-src="{{item.selfieUrl}}" />
+            </view>
+          </block>
+          <block wx:else>
+            <view class="info-row-admin">
+              <text class="info-label">邀请码</text>
+              <text class="info-value">{{item.inviteCode}}</text>
+            </view>
+            <view class="info-row-admin">
+              <text class="info-label">关系说明</text>
+              <text class="info-value">{{item.note}}</text>
+            </view>
+          </block>
+        </view>
+        <view class="action-buttons">
+          <t-button theme="danger" variant="light" content="驳回" bind:tap="handleReject" data-id="{{item._id}}" />
+          <t-button wx:if="{{item.type !== 'family'}}" theme="primary" content="通过" bind:tap="handleApprove" data-id="{{item._id}}" data-type="{{item.type}}" />
+        </view>
+        <view class="family-actions" wx:if="{{item.type === 'family'}}">
+          <view class="family-actions-title">分配到:</view>
+          <view class="family-buttons">
+            <block wx:for="{{families}}" wx:for-item="familyName" wx:key="*this">
+              <t-button 
+                theme="primary" 
+                size="small"
+                content="{{familyName}}" 
+                bind:tap="handleApprove" 
+                data-id="{{item._id}}" 
+                data-type="family"
+                data-family-name="{{familyName}}"
+              />
+            </block>
+          </view>
+        </view>
+      </view>
+    </block>
+    <block wx:else>
+      <t-empty description="暂无待审核的申请" />
+    </block>
+  </view>
+
+  <!-- Processed List -->
+  <view class="list-container" wx:if="{{activeTab === 'processed'}}">
+    <block wx:if="{{isLoading}}">
+      <view class="loading-text">加载中...</view>
+    </block>
+    <block wx:elif="{{processedApplications.length > 0}}">
+      <view class="application-card processed-card" wx:for="{{processedApplications}}" wx:key="_id">
+        <view class="status-badge {{item.status}}">{{item.status === 'approved' ? '已通过' : '已驳回'}}</view>
+        <!-- ... existing card content, but without action buttons ... -->
+        <view class="applicant-info">
+          <t-avatar image="{{item.applicantInfo.avatarUrl}}" />
+          <view class="applicant-name">{{item.applicantInfo.nickName}}</view>
+          <view class="apply-time">{{item.createTime}}</view>
+        </view>
+        <view class="content-section">
+          <block wx:if="{{item.type === 'personal'}}">
+            <view class="note" wx:if="{{item.note}}">留言：{{item.note}}</view>
+          </block>
+          <block wx:else>
+            <view class="info-row-admin">
+              <text class="info-label">关系说明</text>
+              <text class="info-value">{{item.note}}</text>
+            </view>
+          </block>
+        </view>
+      </view>
+    </block>
+    <block wx:else>
+      <t-empty description="暂无已处理的记录" />
+    </block>
+  </view>
+</view>
+</view> <!-- Missing closing tag added here -->

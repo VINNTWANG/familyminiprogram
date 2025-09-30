@@ -1,0 +1,212 @@
+/* E:\Users\wntwa\WeChatProjects\miniprogram-1\components\thread-item\index.wxss (Corrected) */
+
+/* A clean, simple card layout */
+.thread-card-root {
+  background-color: #fff;
+  border-radius: 16rpx;
+  margin: 0 24rpx 24rpx;
+  box-shadow: 0 8rpx 30rpx rgba(0,0,0,0.07);
+  padding: 24rpx;
+  /* Add position relative to anchor the popup */
+  position: relative; 
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+}
+
+.meta {
+  flex: 1;
+}
+
+.name-line {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 4rpx;
+}
+
+.name {
+  font-weight: 600;
+  font-size: 30rpx;
+  color: #1f2329;
+}
+
+.badges-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.time {
+  font-size: 24rpx;
+  color: #8a9299;
+}
+
+.content-text {
+  color: #2f3133;
+  line-height: 1.7;
+  font-size: 30rpx;
+  white-space: pre-wrap;
+  margin-top: 8rpx;
+  margin-bottom: 16rpx;
+}
+.content-text.is-folded {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.fold-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  color: #4e5969;
+  font-size: 26rpx;
+  margin-top: -8rpx;
+  margin-bottom: 8rpx;
+}
+.fold-toggle:active { opacity: 0.7; }
+.fold-text { text-decoration: none; }
+
+/* Media Grid Styles... */
+.media-grid {
+  display: grid;
+  gap: 8rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+.media-item { position: relative; background-color: #f0f2f5; }
+.grid-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+.play-icon-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: rgba(0,0,0,0.2); }
+.play-icon { display: none !important; }
+.more-mask { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: rgba(0,0,0,0.35); color: #ffffff; font-size: 36rpx; font-weight: 600; }
+.media-grid.length-1 .media-item { grid-column: span 2; padding-bottom: 60%; }
+.media-grid.length-2 .media-item { padding-bottom: 100%; }
+.media-grid.length-3 { grid-template-columns: repeat(3, 1fr); }
+.media-grid.length-3 .media-item { padding-bottom: 100%; }
+.media-grid.length-4 { padding-bottom: 0; }
+.media-grid.length-4 .media-item { padding-bottom: 100%; }
+.media-grid { grid-template-columns: repeat(2, 1fr); }
+
+/* Audio Styles... */
+.audio-player-container { margin-top: 16rpx; }
+.audio-tile { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #4e5969; }
+.audio-chip { display: inline-flex; align-items: center; gap: 12rpx; background-color: #f0f2f5; padding: 16rpx 24rpx; border-radius: 40rpx; font-size: 28rpx; color: #1f2329; }
+.audio-text { font-weight: 500; }
+.audio-duration { color: #8a9299; }
+
+.actions {
+  margin-top: 24rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #f0f2f5;
+  display: flex;
+  justify-content: space-around;
+}
+
+.action-item {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  color: #4e5969;
+  transition: color 0.2s ease;
+}
+
+.action-item.liked .like-icon {
+  color: #e34d59;
+}
+
+@keyframes like-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+.like-animation {
+  animation: like-pop 0.3s ease-in-out;
+}
+
+.action-icon-emoji {
+  font-size: 36rpx;
+  line-height: 1;
+}
+
+/* Reactions Summary */
+.reactions-summary { display: flex; flex-wrap: wrap; gap: 12rpx; padding-top: 16rpx; }
+.reactions-summary .chip { display: flex; align-items: center; background: #f2f3f5; border-radius: 999rpx; padding: 4rpx 12rpx; font-size: 24rpx; }
+.reactions-summary .emoji { font-size: 28rpx; margin-right: 8rpx; }
+.reactions-summary .count { color: #4e5969; font-weight: 500; }
+
+/* --- REACTION POPUP REDESIGN --- */
+@keyframes popup-fade-in {
+  from { opacity: 0; transform: translateY(10rpx) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.popup-layer {
+  position: absolute; /* Change from fixed to absolute to be relative to the card */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 200;
+}
+
+.popup-overlay {
+  width: 100%;
+  height: 100%;
+  /* Make overlay transparent */
+  background: transparent;
+}
+
+.reaction-popup {
+  position: absolute;
+  /* Position it above the actions bar */
+  bottom: 100rpx; 
+  right: 24rpx;
+  width: auto; /* Auto width based on content */
+  max-width: 600rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 8rpx 30rpx rgba(0,0,0,0.12);
+  padding: 16rpx 24rpx;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+  justify-content: center;
+  animation: popup-fade-in 0.2s ease-out forwards;
+  /* Add transform origin for better animation */
+  transform-origin: bottom right;
+}
+
+/* Arrow pointing down */
+.reaction-popup::after {
+  content: '';
+  position: absolute;
+  bottom: -12rpx;
+  right: 28rpx;
+  width: 0;
+  height: 0;
+  border-left: 14rpx solid transparent;
+  border-right: 14rpx solid transparent;
+  border-top: 14rpx solid #fff;
+}
+
+.reaction-popup .emoji {
+  font-size: 48rpx;
+  transition: transform 0.1s ease;
+}
+
+.reaction-popup .emoji:active {
+  transform: scale(0.85);
+}

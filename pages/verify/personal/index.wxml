@@ -1,0 +1,56 @@
+<view class="page-container">
+  <!-- Custom Navbar -->
+  <view class="native-navbar" style="height: {{navBarContentHeightRpx + statusBarHeightRpx}}rpx; padding-top: {{statusBarHeightRpx}}rpx;">
+    <view class="nav-content" style="height: {{navBarContentHeightRpx}}rpx;">
+      <view class="nav-left" bind:tap="navigateBack">
+        <view class="back-icon">〈</view>
+      </view>
+      <view class="nav-title">申请个人认证</view>
+      <view style="width: 100rpx;"></view> <!-- Placeholder -->
+    </view>
+  </view>
+
+  <!-- Main Content -->
+  <view class="container" style="padding-top: {{navBarContentHeightRpx + statusBarHeightRpx}}rpx;">
+    <view class="form-card">
+    <view class="title">申请个人认证</view>
+    <view class="description">向管理员发送一条消息和一张你的自拍，以便管理员确认你的身份。</view>
+
+    <view class="form-item">
+      <view class="form-label">留言</view>
+      <t-textarea 
+        class="textarea"
+        placeholder="可以说说你是谁，例如：我是小三子"
+        value="{{note}}"
+        bind:change="onNoteChange"
+      />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">自拍认证</view>
+      <t-upload
+        files="{{files}}"
+        media-type="['image']"
+        source="{{['album', 'camera']}}"
+        camera="front"
+        max="1"
+        bind:add="handleAdd"
+        bind:remove="handleRemove"
+      />
+    </view>
+
+    <view class="submit-area">
+      <t-button 
+        theme="primary" 
+        content="提交申请"
+        block 
+        shape="round" 
+        size="large" 
+        bind:tap="handleSubmit"
+        disabled="{{isSubmitting}}"
+        loading="{{isSubmitting}}"
+      />
+    </view>
+  </view>
+</view>
+</view> <!-- Missing closing tag added here -->

@@ -1,0 +1,11 @@
+{
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "t-navbar": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/navbar/navbar",
+    "t-input": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/input/input",
+    "t-link": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/link/link",
+    "t-button": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/button/button"
+  }
+}
+
+

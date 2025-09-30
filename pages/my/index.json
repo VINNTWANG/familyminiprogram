@@ -1,0 +1,14 @@
+{
+  "usingComponents": {
+    "nav": "/components/nav/index",
+    "post-card": "/components/post-card/index",
+    "thread-item": "/components/thread-item/index",
+    "t-empty": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/empty/empty",
+    "post-skeleton": "/components/post-skeleton/index",
+    "t-avatar": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/avatar/avatar",
+    "t-button": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/button/button"
+  },
+  "navigationStyle": "custom"
+}
+
+

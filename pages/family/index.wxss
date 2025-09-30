@@ -1,0 +1,18 @@
+page { background: #f7f8fa; }
+.page { padding: 16rpx 20rpx 24rpx; }
+
+.header {
+  background: #ffffff;
+  border-radius: 22rpx;
+  padding: 22rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+.name { font-size: 32rpx; font-weight: 600; color: #0a0a0a; }
+.members { display: flex; align-items: center; }
+.members .t-avatar { margin-left: -10rpx; border: 4rpx solid #fff; }
+
+.posts { display: flex; flex-direction: column; gap: 16rpx; }

@@ -1,0 +1,10 @@
+{
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "t-navbar": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/navbar/navbar",
+    "t-progress": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/progress/progress",
+    "t-empty": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/empty/empty"
+  }
+}
+
+

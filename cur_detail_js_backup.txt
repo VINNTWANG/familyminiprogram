@@ -1,0 +1,373 @@
+import dayjs from 'dayjs';
+import { emojiList } from '../../config/reactionConfig.js';
+const eventBus = getApp().eventBus;
+
+Page({
+  data: {
+    post: null,
+    comments: [],
+    isLoading: true,
+    loadError: false,
+    commentInputValue: '',
+    showReactionPanel: false,
+    availableReactions: emojiList,
+    inputPlaceholder: '璇寸偣浠€涔?..',
+    inputFocused: false,
+    isReplying: false,
+    replyInfo: null,
+    currentUserInfo: null,
+  },
+  innerAudioContext: null,
+
+  onLoad(options) {
+    const systemInfo = wx.getSystemInfoSync();
+    const screenWidth = systemInfo.screenWidth;
+    const statusBarHeightPx = systemInfo.statusBarHeight;
+    const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
+    const navBarHeightPx = (menuButtonInfo.top - statusBarHeightPx) * 2 + menuButtonInfo.height;
+    const rpxRatio = 750 / screenWidth;
+    this.setData({
+      statusBarHeightRpx: statusBarHeightPx * rpxRatio,
+      navBarHeightRpx: navBarHeightPx * rpxRatio
+    });
+
+    const postId = options.id;
+    if (!postId) {
+      this.setData({ isLoading: false, loadError: true });
+      return;
+    }
+    this.loadData(postId);
+  },
+
+  onUnload() {
+    if (this.innerAudioContext) {
+      this.innerAudioContext.destroy();
+    }
+  },
+
+  // --- Data Flattening Helper ---
+  _flattenComment(comment) {
+    if (!comment) return null;
+    const flatComment = { ...comment };
+
+    if (comment.authorInfo) {
+      flatComment.authorNickName = comment.authorInfo.nickName;
+      flatComment.authorAvatarUrl = comment.authorInfo.avatarUrl;
+      flatComment.authorIsAdmin = comment.authorInfo.isAdmin;
+      flatComment.authorRole = comment.authorInfo.role;
+    }
+
+    if (comment.replyToUser) {
+      flatComment.replyToNickName = comment.replyToUser.nickName;
+    }
+
+    // Delete nested objects to keep data clean
+    delete flatComment.authorInfo;
+    delete flatComment.replyToUser;
+
+    return flatComment;
+  },
+
+  async loadData(postId) {
+    this.setData({ isLoading: true, loadError: false });
+    const db = wx.cloud.database();
+    const _ = db.command;
+    const myOpenId = wx.getStorageSync('userInfo')?._openid;
+
+    try {
+      const [postRes, commentsRes] = await Promise.all([
+        db.collection('posts').doc(postId).get(),
+        db.collection('comments').where({ postId: postId }).orderBy('createTime', 'asc').get()
+      ]);
+
+      let postData = postRes.data;
+      console.log('Post Data:', postData); // Debugging line
+      let commentsData = commentsRes.data || [];
+
+      if (!postData) {
+        this.setData({ isLoading: false, loadError: true });
+        return;
+      }
+
+      const authorIds = [...new Set([
+        postData._openid,
+        ...commentsData.map(c => c._openid),
+        myOpenId
+      ].filter(id => !!id))];
+
+      const usersRes = await db.collection('users').where({ _openid: _.in(authorIds) }).get();
+      const usersMap = (usersRes.data || []).reduce((acc, user) => {
+        acc[user._openid] = user;
+        return acc;
+      }, {});
+
+      const enrichWithAuthor = (item) => {
+        if (usersMap[item._openid]) {
+          item.authorInfo = usersMap[item._openid];
+        }
+        return item;
+      };
+
+      postData = enrichWithAuthor(postData);
+      commentsData.forEach(enrichWithAuthor);
+
+      // --- FLATTEN DATA before building tree ---
+      const flattenedComments = commentsData.map(c => this._flattenComment(c));
+
+      const commentTree = this.buildCommentTree(flattenedComments);
+
+      postData.time = dayjs(postData.createTime).format('YYYY-MM-DD HH:mm');
+      postData.liked = postData.reactions.some(r => r.openid === myOpenId && r.emoji === '鉂わ�?);
+      postData.likes = postData.reactions.filter(r => r.emoji === '鉂わ�?).length;
+      postData.isOwnPost = postData._openid === myOpenId;
+      
+      this.setData({
+        post: postData,
+        comments: commentTree,
+        currentUserInfo: usersMap[myOpenId] || null,
+        isLoading: false,
+      });
+
+      this.updateReactionSummary();
+
+    } catch (err) {
+      console.error('[DB] Failed to load post details', err);
+      this.setData({ isLoading: false, loadError: true });
+    }
+  },
+
+  buildCommentTree(comments) {
+    const commentMap = {};
+    const rootComments = [];
+    comments.forEach(comment => {
+      comment.children = [];
+      commentMap[comment._id] = comment;
+    });
+    comments.forEach(comment => {
+      if (comment.parentCommentId) {
+        const parent = commentMap[comment.parentCommentId];
+        if (parent) {
+          parent.children.push(comment);
+        } else {
+          rootComments.push(comment);
+        }
+      } else {
+        rootComments.push(comment);
+      }
+    });
+    return rootComments;
+  },
+
+  onReply(e) {
+    const comment = e.currentTarget.dataset.comment;
+    this.setData({
+      isReplying: true,
+      replyInfo: {
+        parentCommentId: comment._id,
+        // Pass the flattened properties
+        nickName: comment.authorNickName,
+        _openid: comment._openid
+      },
+      inputPlaceholder: `鍥炲�?@${comment.authorNickName}`,
+      inputFocused: true,
+    });
+  },
+
+  cancelReply() {
+    this.setData({ isReplying: false, replyInfo: null, inputPlaceholder: '璇寸偣浠€涔?..', inputFocused: false });
+  },
+
+  onCommentInputChange(e) {
+    this.setData({ commentInputValue: e.detail.value });
+  },
+
+  submitComment() {
+    const content = this.data.commentInputValue.trim();
+    if (!content) return;
+
+    const currentUserInfo = this.data.currentUserInfo;
+    if (!currentUserInfo) {
+      wx.showToast({ title: '鐢ㄦ埛淇℃伅涓嶅畬鏁达紝璇烽噸鏂扮櫥�?, icon: 'none' });
+      return;
+    }
+
+    wx.showLoading({ title: '鍙戝竷涓?..' });
+
+    const cloudData = { action: 'add', postId: this.data.post._id, content: content };
+
+    if (this.data.isReplying) {
+      cloudData.parentCommentId = this.data.replyInfo.parentCommentId;
+      cloudData.replyToUser = { _openid: this.data.replyInfo._openid, nickName: this.data.replyInfo.nickName };
+    }
+
+    wx.cloud.callFunction({ name: 'manageComment', data: cloudData })
+    .then(res => {
+      wx.hideLoading();
+      if (res.result && res.result.code === 0) {
+        wx.showToast({ title: '璇勮鎴愬姛' });
+
+        const newCommentRaw = {
+          _id: res.result.data._id,
+          _openid: currentUserInfo._openid,
+          postId: cloudData.postId,
+          content: cloudData.content,
+          parentCommentId: cloudData.parentCommentId,
+          replyToUser: cloudData.replyToUser,
+          authorInfo: currentUserInfo,
+          createTime: new Date(),
+          time: '鍒氬�?,
+          children: []
+        };
+        
+        // FLATTEN the new comment before adding to tree
+        const newCommentFlat = this._flattenComment(newCommentRaw);
+
+        this.addCommentToTree(newCommentFlat);
+        this.setData({ commentInputValue: '' });
+        this.cancelReply();
+      } else {
+        wx.showToast({ title: (res.result && res.result.message) || '鍙戝竷澶辫触', icon: 'none' });
+      }
+    }).catch(err => {
+      wx.hideLoading();
+      wx.showToast({ title: '鍙戝竷澶辫触', icon: 'none' });
+      console.error('Error calling manageComment', err);
+    });
+  },
+
+  addCommentToTree(newComment) {
+    const comments = this.data.comments;
+    const updateRecursively = (commentList) => {
+      return commentList.map(comment => {
+        if (comment._id === newComment.parentCommentId) {
+          return { ...comment, children: [...comment.children, newComment] };
+        }
+        if (comment.children && comment.children.length > 0) {
+          return { ...comment, children: updateRecursively(comment.children) };
+        }
+        return comment;
+      });
+    };
+
+    let newComments;
+    if (newComment.parentCommentId) {
+      newComments = updateRecursively(comments);
+    } else {
+      newComments = [...comments, newComment];
+    }
+    this.setData({ comments: newComments });
+  },
+
+  // (Other functions are omitted for brevity)
+  updateReactionSummary() {
+    const reactions = (this.data.post && this.data.post.reactions) || [];
+    const counts = reactions.reduce((acc, cur) => {
+      acc[cur.emoji] = (acc[cur.emoji] || 0) + 1;
+      return acc;
+    }, {});
+    const summary = Object.keys(counts)
+      .map(k => ({ emoji: k, count: counts[k] }))
+      .sort((a, b) => b.count - a.count);
+    this.setData({ reactionSummary: summary });
+  },
+  navigateBack() { wx.navigateBack(); },
+  // Like current post (鉂わ�? with optimistic UI update
+  handleLike() {
+    const userInfo = wx.getStorageSync('userInfo');
+    if (!userInfo) { wx.showToast({ title: '璇峰厛鐧诲綍', icon: 'none' }); return; }
+    const post = this.data.post;
+    if (!post || !post._id) return;
+
+    const myOpenId = userInfo._openid;
+    const alreadyLiked = !!post.liked;
+
+    // Optimistic update
+    let reactions = Array.isArray(post.reactions) ? [...post.reactions] : [];
+    if (alreadyLiked) {
+      const idx = reactions.findIndex(r => r.openid === myOpenId && r.emoji === '鉂わ�?);
+      if (idx > -1) reactions.splice(idx, 1);
+    } else {
+      reactions.push({ openid: myOpenId, emoji: '鉂わ�? });
+    }
+    const likes = reactions.filter(r => r.emoji === '鉂わ�?).length;
+    this.setData({ 'post.reactions': reactions, 'post.liked': !alreadyLiked, 'post.likes': likes });
+
+    // Server update
+    wx.cloud.callFunction({ name: 'manageReaction', data: { postId: post._id, emoji: '鉂わ�? } })
+      .then(res => {
+        if (res.result && res.result.code === 0 && res.result.data) {
+          const updated = res.result.data;
+          const likes2 = (updated.reactions || []).filter(r => r.emoji === '鉂わ�?).length;
+          const liked2 = (updated.reactions || []).some(r => r.openid === myOpenId && r.emoji === '鉂わ�?);
+          this.setData({ post: { ...this.data.post, reactions: updated.reactions, likes: likes2, liked: liked2 } });
+        }
+      })
+      .catch(err => {
+        console.error('manageReaction error', err);
+        // Best-effort revert
+        const revertLiked = alreadyLiked;
+        const revertReactions = Array.isArray(post.reactions) ? post.reactions : [];
+        const revertLikes = revertReactions.filter(r => r.emoji === '鉂わ�?).length;
+        this.setData({ 'post.reactions': revertReactions, 'post.liked': revertLiked, 'post.likes': revertLikes });
+        wx.showToast({ title: '鐐硅禐澶辫触', icon: 'none' });
+      });
+  },
+  toggleReactionPopup() {
+    this.setData({ showReactionPanel: !this.data.showReactionPanel });
+  },
+  // Focus the input to add a new comment
+  focusComment() {
+    this.setData({ inputFocused: true });
+  },
+  onSelectReaction(e) {
+    const emoji = e && e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.emoji;
+    if (!emoji) return;
+    const userInfo = wx.getStorageSync('userInfo');
+    if (!userInfo) { wx.showToast({ title: '璇峰厛鐧诲綍', icon: 'none' }); return; }
+    const post = this.data.post;
+    if (!post || !post._id) return;
+
+    wx.cloud.callFunction({ name: 'manageReaction', data: { postId: post._id, emoji } })
+      .then(res => {
+        if (res.result && res.result.code === 0 && res.result.data) {
+          const updated = res.result.data;
+          const myOpenId = userInfo._openid;
+          const likes = (updated.reactions || []).filter(r => r.emoji === '鉂わ�?).length;
+          const liked = (updated.reactions || []).some(r => r.openid === myOpenId && r.emoji === '鉂わ�?);
+          this.setData({ post: { ...this.data.post, reactions: updated.reactions, likes, liked }, showReactionPanel: false });
+        } else {
+          wx.showToast({ title: '鎿嶄綔澶辫触', icon: 'none' });
+        }
+      })
+      .catch(err => {
+        console.error('manageReaction error', err);
+        wx.showToast({ title: '鎿嶄綔澶辫触', icon: 'none' });
+      });
+  },
+  handleDelete() {},
+  // If needed separately from post-card's built-in audio
+  playAudio() {
+    const audio = this.data.post && this.data.post.displayAudio;
+    if (!audio || !audio.src) return;
+    if (!this.innerAudioContext) {
+      this.innerAudioContext = wx.createInnerAudioContext();
+      this.innerAudioContext.obeyMuteSwitch = false;
+      this.innerAudioContext.onEnded(() => this.setData({ 'post.displayAudio.playing': false }));
+      this.innerAudioContext.onStop(() => this.setData({ 'post.displayAudio.playing': false }));
+      this.innerAudioContext.onError(() => {
+        wx.showToast({ title: '璇煶鎾斁澶辫�?, icon: 'none' });
+        this.setData({ 'post.displayAudio.playing': false });
+      });
+    }
+    if (this.data.post.displayAudio.playing) {
+      this.innerAudioContext.stop();
+      return;
+    }
+    this.innerAudioContext.src = audio.src;
+    this.innerAudioContext.play();
+    this.setData({ 'post.displayAudio.playing': true });
+  },
+  handleMediaTap(e) {},
+});
+
+

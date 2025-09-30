@@ -1,0 +1,12 @@
+<t-navbar title="家庭空间" left-arrow />
+<view class="page">
+  <view class="family-list">
+    <view class="family-card" wx:for="{{families}}" wx:key="_id" data-id="{{item._id}}" bind:tap="navigateToFamilyDetail">
+      <view class="family-name">{{item.name}}</view>
+      <t-icon name="chevron-right" />
+    </view>
+  </view>
+  <view wx:if="{{families.length === 0}}" style="padding: 24rpx;">
+    <t-empty description="还没有任何家庭" />
+  </view>
+</view>

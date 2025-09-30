@@ -1,0 +1,6 @@
+{
+  "component": true,
+  "usingComponents": {
+    "t-skeleton": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/skeleton/skeleton"
+  }
+}

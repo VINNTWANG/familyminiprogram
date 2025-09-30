@@ -1,0 +1,166 @@
+@import '../../variable.less';
+
+.my-page-container {
+  background-color: @gray-2;
+  min-height: 100vh;
+}
+
+/* Custom Navbar Placeholder */
+.custom-navbar-placeholder {
+  /* This just occupies space. The real navbar is fixed. */
+}
+
+/* Header */
+.profile-header {
+  position: relative;
+  height: 350rpx;
+  background-color: @gray-3;
+}
+
+.cover-photo {
+  width: 100%;
+  height: 100%;
+}
+
+.profile-picture-area {
+  position: absolute;
+  bottom: -80rpx; // Overlap amount
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.profile-picture-border {
+  border-radius: 50%;
+  padding: 8rpx;
+  background-color: @gray-2; // Match page background
+}
+
+/* User Info */
+.user-info-area {
+  background-color: @gray-2; // Match page background
+  padding: 100rpx @space-32 0 @space-32; // Top padding for avatar
+  text-align: center;
+
+  .nickname-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: @space-16;
+  }
+
+  .nickname {
+    font-size: @font-size-heading;
+    font-weight: bold;
+    color: @gray-9;
+  }
+}
+
+/* Tab Bar */
+.content-tabs {
+  display: flex;
+  justify-content: center;
+  gap: @space-48;
+  margin: @space-32 0;
+  padding: 0 @space-32;
+  border-bottom: 1rpx solid @gray-3;
+}
+
+.tab {
+  padding-bottom: @space-16;
+  font-size: @font-size-body-large;
+  color: @gray-6;
+  position: relative;
+  &.active {
+    color: @brand-color;
+    font-weight: bold;
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -1rpx; // Sit on top of the border
+      left: 0;
+      width: 100%;
+      height: 4rpx;
+      background-color: @brand-color;
+    }
+  }
+}
+
+/* Tab Content */
+.tab-content {
+  padding: 0 @space-32;
+}
+
+.posts-container {
+  /* Container for posts list */
+}
+
+.profile-content-container {
+  .info-card {
+    background-color: #fff;
+    border-radius: @border-radius-lg;
+    margin-bottom: @space-24;
+    padding: 0 @space-32;
+  }
+
+  .info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: @space-32 0;
+    border-bottom: 1rpx solid @gray-2;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .info-label {
+    font-size: @font-size-body-large;
+    color: @gray-9;
+  }
+
+  .info-value {
+    font-size: @font-size-body-large;
+    color: @gray-6;
+  }
+
+  .info-value-action {
+    display: flex;
+    align-items: center;
+    gap: @space-8;
+    font-size: @font-size-body-large;
+    color: @gray-6;
+  }
+
+  .status-unverified {
+    color: @warning-color;
+  }
+
+  .logout-btn-container {
+    margin-top: @space-48;
+  }
+
+  .admin-cell .info-label {
+    color: @brand-color;
+    font-weight: bold;
+  }
+
+  .badge {
+    font-size: @font-size-small;
+    font-weight: bold;
+    padding: @space-4 @space-12;
+    border-radius: @border-radius-sm;
+  }
+}
+
+/* Login Prompt */
+.login-prompt-container {
+  padding: 100rpx @space-32;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  .login-title { font-size: 32rpx; font-weight: bold; margin-bottom: 40rpx; }
+  .avatar-wrapper { padding: 0; margin: 0; width: 160rpx; height: 160rpx; border-radius: 50%; overflow: hidden; border: 4rpx solid #eee; .avatar-image { width: 100%; height: 100%; } }
+  .login-tip { font-size: 24rpx; color: #999; margin-top: 16rpx; }
+  .nickname-input { margin-top: 40rpx; border: 1px solid #eee; border-radius: 8rpx; padding: 16rpx; width: 80%; text-align: center; }
+}

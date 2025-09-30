@@ -1,0 +1,84 @@
+@import '../../variable.less';
+
+.page-container {
+  background-color: @gray-1;
+  min-height: 100vh;
+}
+
+/* Custom Navbar */
+.native-navbar { 
+  position: fixed; 
+  left: 0; 
+  right: 0; 
+  top: 0; 
+  background: @gray-1; 
+  z-index: 100; 
+  box-sizing: border-box;
+  border-bottom: 1rpx solid @gray-3;
+}
+
+.nav-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16rpx;
+}
+
+.nav-left {
+  width: 88rpx;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-icon {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: @gray-9;
+}
+
+.nav-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: @gray-9;
+}
+
+/* Main Content */
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: @space-32;
+  box-sizing: border-box;
+}
+
+.content-card {
+  width: 100%;
+  max-width: 700rpx;
+  background-color: #fff;
+  border-radius: @border-radius-lg;
+  padding: @space-48;
+  box-shadow: @shadow-2;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.app-name {
+  font-size: @font-size-heading;
+  font-weight: bold;
+  color: @gray-9;
+}
+
+.app-version {
+  font-size: @font-size-caption;
+  color: @gray-5;
+  margin: @space-8 0 @space-32 0;
+}
+
+.app-description {
+  font-size: @font-size-body;
+  color: @gray-7;
+  line-height: 1.7;
+}

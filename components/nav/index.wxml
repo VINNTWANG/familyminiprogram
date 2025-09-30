@@ -1,0 +1,54 @@
+<view class="home-navbar">
+  <!-- Top Navbar with menu + search -->
+  <t-navbar>
+    <view slot="left" class="home-navbar__left">
+      <view class="home-navbar__icon" bindtap="openDrawer">
+        <t-icon name="hamburger" size="44rpx" />
+      </view>
+      <!-- Clickable search entry; use readonly to avoid focus, navigate on tap -->
+      <t-search
+        placeholder="搜索家人、动态..."
+        shape="round"
+        leftIcon="search"
+        readonly
+        bindtap="searchTurn"
+      />
+    </view>
+  </t-navbar>
+
+  <!-- Side Drawer -->
+  <!-- Custom Side Drawer -->
+  <view class="custom-drawer-overlay {{visible ? 'is-visible' : ''}}" bind:tap="closeDrawer"></view>
+  <view class="custom-drawer-content {{visible ? 'is-visible' : ''}}" style="padding-top: {{statusHeight}}px;" bind:tap="noop">
+    <view class="drawer-content">
+      <view class="drawer-header">
+        <view class="drawer-title">主菜单</view>
+      </view>
+      <view class="drawer-body">
+        <view class="menu-list">
+          <block wx:for="{{menuItems}}" wx:key="title">
+            <view class="drawer-item" data-item="{{item}}" bind:tap="onDrawerItemClick">
+              <t-icon name="{{item.icon}}" size="44rpx" />
+              <text>{{item.title}}</text>
+            </view>
+          </block>
+        </view>
+
+        <view class="about-text">
+          <view class="about-title">关于「王家记忆」</view>
+          <view class="about-body">我们或许相隔千里，但亲情让心紧紧相连。在这里，请随时分享你的生活点滴、喜怒哀乐。无论是家常便饭，还是窗外风景，你的每一次记录，都是家人眼中最珍贵的温暖。让「王家记忆」成为我们传递思念、感受彼此的数字家园。</view>
+          <view class="about-signature">
+            <view>2025年9月</view>
+            <view>zihaowangs@proton.me</view>
+          </view>
+          <view class="about-version">Version 1.0.0</view>
+        </view>
+
+        <view class="drawer-item logout-item" bind:tap="handleLogout">
+          <t-icon name="logout" size="44rpx" />
+          <text>退出登录</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

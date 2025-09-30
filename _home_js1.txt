@@ -1,0 +1,240 @@
+import { formatTime } from '../../utils/util';
+const eventBus = getApp().eventBus;
+
+Page({
+  data: {
+    posts: [],
+    isLoading: true,
+    isRefresherTriggered: false,
+    userNickName: '家人',
+    userAvatarUrl: '/static/avatar1.png',
+    isAdmin: false,
+    pageSize: 10,
+    lastCreateTime: null,
+    loadingMore: false,
+    hasMore: true,
+    scrollTop: 0,
+    showBackTop: false,
+    releaseFabHidden: false,
+    fabAnimation: null,
+    banners: [], // Remove hardcoded data, will be fetched from DB
+    fabPressed: false,
+    greetingText: '欢迎回来',
+    greetingSubList: [
+      '家人常联系，温暖常在�?,
+      '记录生活点滴，分享喜怒哀乐�?,
+      '家，是我们永恒的港湾�?,
+      '有家人的地方，就是心的方向�?,
+      '分享，让家的温暖加倍�?
+    ],
+    activeGreetingSub: '',
+    loadError: false,
+  },
+
+  onLoad(option) {
+    if (option && option.oper === 'release') {
+      wx.showToast({ title: '发布成功', icon: 'success' });
+    }
+    this.loadPosts(true);
+    this.fetchBanners(); // <<<--- NEW: Fetch banners on load
+    this.setGreeting();
+
+    // Setup Event Bus Listeners
+    eventBus.on('post-updated', this.handlePostUpdate);
+    eventBus.on('post-deleted', this.handlePostDelete);
+    eventBus.on('request-logout', this.handleLogout);
+  },
+
+  // --- NEW: Function to fetch banners ---
+  async fetchBanners() {
+    try {
+      const db = wx.cloud.database();
+      const res = await db.collection('banners').orderBy('createTime', 'desc').limit(10).get();
+      const bannerDocs = res.data;
+
+      if (bannerDocs.length > 0) {
+        const fileList = bannerDocs.map(item => item.fileId);
+        const tempUrlRes = await wx.cloud.getTempFileURL({ fileList });
+        const urls = tempUrlRes.fileList.map(item => item.tempFileURL);
+        this.setData({ banners: urls });
+      } else {
+        // Fallback to default banners if none in DB
+        this.setData({ banners: ['/static/home/swiper0.png', '/static/home/card2.png', '/static/home/card4.png'] });
+      }
+    } catch (e) {
+      console.error('Failed to fetch banners', e);
+      // Fallback on error
+      this.setData({ banners: ['/static/home/swiper0.png', '/static/home/card2.png', '/static/home/card4.png'] });
+    }
+  },
+
+  onUnload() {
+    // Clean up Event Bus Listeners
+    eventBus.off('post-updated', this.handlePostUpdate);
+    eventBus.off('post-deleted', this.handlePostDelete);
+    eventBus.off('request-logout', this.handleLogout);
+  },
+
+  onShow() {
+    this.updateUserAvatar();
+    this.setRandomGreetingSub();
+    this.lastScrollY = 0;
+    this.setData({ releaseFabHidden: false });
+    this._initFabAnimation();
+  },
+
+  _initFabAnimation() {
+    try {
+      this.fabAnim = wx.createAnimation({ duration: 220, timingFunction: 'ease' });
+      this.fabAnim.opacity(1).translateY(0).step();
+      this.setData({ fabAnimation: this.fabAnim.export() });
+    } catch (e) { /* ignore in non-UI env */ }
+  },
+
+  _hideFab() {
+    if (!this.fabAnim) return;
+    this.fabAnim.opacity(0).translateY(100).step();
+    this.setData({ fabAnimation: this.fabAnim.export() });
+  },
+
+  _showFab() {
+    if (!this.fabAnim) return;
+    this.fabAnim.opacity(1).translateY(0).step();
+    this.setData({ fabAnimation: this.fabAnim.export() });
+  },
+
+  async updateUserAvatar() {
+    const userInfo = wx.getStorageSync('userInfo');
+    if (!userInfo) {
+      this.setData({
+        userNickName: '家人',
+        userAvatarUrl: '/static/avatar1.png',
+        isAdmin: false,
+      });
+      return;
+    }
+
+    let finalAvatarUrl = userInfo.avatarUrl || '/static/avatar1.png';
+    if (userInfo.avatarUrl && userInfo.avatarUrl.startsWith('cloud://')) {
+      try {
+        const tempUrlRes = await wx.cloud.getTempFileURL({ fileList: [userInfo.avatarUrl] });
+        if (tempUrlRes.fileList && tempUrlRes.fileList[0] && tempUrlRes.fileList[0].status === 0) {
+          finalAvatarUrl = tempUrlRes.fileList[0].tempFileURL;
+        }
+      } catch (e) {
+        console.error('[getTempFileURL] Failed to get avatar URL', e);
+      }
+    }
+
+    this.setData({
+      userNickName: userInfo.nickName || '家人',
+      userAvatarUrl: finalAvatarUrl,
+      isAdmin: userInfo.isAdmin || false,
+    });
+  },
+
+  onRefresherRefresh() { 
+    this.loadPosts(true); 
+    this.fetchBanners(); // Also refresh banners
+  },
+
+  async loadPosts(reset = false) {
+    if (reset) {
+      this.setData({ isLoading: true, isRefresherTriggered: true, lastCreateTime: null, hasMore: true, posts: [], loadError: false });
+    } else {
+      if (!this.data.hasMore || this.data.loadingMore) return;
+      this.setData({ loadingMore: true });
+    }
+
+    try {
+      const postRes = await wx.cloud.callFunction({
+        name: 'getPosts',
+        data: { pageSize: this.data.pageSize, lastCreateTime: this.data.lastCreateTime }
+      });
+      let postsData = postRes.result || [];
+
+      if (postsData.length === 0) {
+        if (reset) this.setData({ posts: [] });
+        this.setData({ hasMore: false, isLoading: false, isRefresherTriggered: false, loadingMore: false });
+        return;
+      }
+
+      const authorIds = [...new Set(postsData.map(p => p._openid))];
+      const usersRes = await wx.cloud.callFunction({ name: 'getUsers', data: { userIds: authorIds } });
+      const usersData = usersRes.result || [];
+      const usersMap = usersData.reduce((acc, user) => { acc[user._openid] = user; return acc; }, {});
+
+      const allFileIDs = [];
+      postsData.forEach(post => {
+        if (Array.isArray(post.images)) allFileIDs.push(...post.images);
+        if (Array.isArray(post.videos)) allFileIDs.push(...post.videos);
+        if (Array.isArray(post.audios)) allFileIDs.push(...post.audios);
+        if (Array.isArray(post.videoCovers)) allFileIDs.push(...post.videoCovers);
+        const user = usersMap[post._openid];
+        if (user && user.avatarUrl) { allFileIDs.push(user.avatarUrl); }
+      });
+
+      const uniqueFileIDs = [...new Set(allFileIDs)].filter(id => id && id.startsWith('cloud://'));
+
+      let urlMap = {};
+      if (uniqueFileIDs.length > 0) {
+        const tempUrlRes = await wx.cloud.getTempFileURL({ fileList: uniqueFileIDs });
+        urlMap = tempUrlRes.fileList.reduce((map, item) => { if (item.status === 0) map[item.fileID] = item.tempFileURL; return map; }, {});
+      }
+
+      const enrichedPosts = postsData.map(post => {
+        const author = usersMap[post._openid];
+        const finalAuthorInfo = { ...(post.authorInfo || {}), ...author };
+        if (finalAuthorInfo.avatarUrl && urlMap[finalAuthorInfo.avatarUrl]) {
+          finalAuthorInfo.avatarUrl = urlMap[finalAuthorInfo.avatarUrl];
+        }
+
+        const resolvedImages = (post.images || []).map(id => urlMap[id] || id);
+        const resolvedVideos = (post.videos || []).map(id => urlMap[id] || id);
+        const resolvedVideoCovers = (post.videoCovers || []).map(id => urlMap[id] || id);
+        const rawAudios = Array.isArray(post.audios) ? post.audios : [];
+        const resolvedAudios = rawAudios.map(a => {
+          if (typeof a === 'string') { return { url: urlMap[a] || a }; }
+          return { ...a, url: urlMap[a.url] || a.url };
+        });
+
+        const totalCount = resolvedImages.length + resolvedVideos.length + resolvedAudios.length;
+        let mediaGrid = [];
+        let displayAudio = null;
+        if (totalCount > 4) {
+          const mediaCombined = [];
+          for (let i = 0; i < resolvedVideos.length; i++) {
+            mediaCombined.push({ type: 'video', src: resolvedVideoCovers[i] || resolvedImages[0] || '', videoSrc: resolvedVideos[i] });
+          }
+          resolvedImages.forEach(imgSrc => mediaCombined.push({ type: 'image', src: imgSrc }));
+          resolvedAudios.forEach(a => mediaCombined.push({ type: 'audio', src: '', audio: a }));
+          mediaGrid = mediaCombined.slice(0, 4);
+        } else {
+          if (resolvedVideos.length > 0) {
+            mediaGrid.push({ type: 'video', src: resolvedVideoCovers[0] || resolvedImages[0], videoSrc: resolvedVideos[0] });
+          }
+          resolvedImages.forEach(imgSrc => mediaGrid.push({ type: 'image', src: imgSrc }));
+          if (resolvedAudios.length > 0) {
+            const audio = resolvedAudios[0];
+            displayAudio = { ...audio, playing: false, durationStr: audio.duration ? `${Math.round(audio.duration)}s` : '' };
+          }
+          mediaGrid = mediaGrid.slice(0, 4);
+        }
+        const mediaMoreCount = totalCount > 4 ? (totalCount - 4) : 0;
+
+        return { ...post, authorInfo: finalAuthorInfo, timestamp: post.createTime ? formatTime(post.createTime) : '未知时间', mediaGrid, mediaMoreCount, displayAudio, images: [], videos: [], audios: [], videoCovers: [] };
+      });
+
+      const nextPosts = reset ? enrichedPosts : [...this.data.posts, ...enrichedPosts];
+      const lastCreateTime = nextPosts.length > 0 ? nextPosts[nextPosts.length - 1].createTime : null;
+      const hasMore = postsData.length === this.data.pageSize;
+      this.setData({ posts: nextPosts, lastCreateTime, hasMore });
+    } catch (err) {
+      console.error('[首页加载] 失败', err);
+      if (reset) this.setData({ loadError: true });
+    } finally {
+      this.setData({ isLoading: false, isRefresherTriggered: false, loadingMore: false });
+    }
+  },
+
+  // (The rest of the functions remain the same)

@@ -1,0 +1,52 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/post-detail/index",
+    "pages/user-profile/index",
+    "pages/release/index",
+    "pages/my/index",
+    "pages/setting/index",
+    "pages/login/login",
+    "pages/loginCode/loginCode",
+    "pages/my/info-edit/index",
+    "pages/search/index",
+    "pages/dataCenter/index",
+    "pages/chat/index",
+    "pages/verify/personal/index",
+    "pages/verify/family/index",
+    "pages/admin/verify/index",
+    "pages/admin/banner-manager/index",
+    "pages/notifications/index",
+    "pages/family/index",
+    "pages/family-detail/index"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "TDesign Starter",
+    "navigationBarTextStyle": "black",
+    "navigationStyle": "custom"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#999999",
+    "selectedColor": "#0052D9",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "首页",
+        "iconPath": "/static/icon_doc.png",
+        "selectedIconPath": "/static/icon_doc.png"
+      },
+      {
+        "pagePath": "pages/my/index",
+        "text": "我的",
+        "iconPath": "/static/icon_qq.png",
+        "selectedIconPath": "/static/icon_qq.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

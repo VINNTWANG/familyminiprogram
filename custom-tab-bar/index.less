@@ -1,0 +1,47 @@
+@import '/variable.less';
+
+.custom-tab-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  padding: 0 24rpx calc(env(safe-area-inset-bottom) + 16rpx);
+  box-sizing: border-box;
+  --td-tab-bar-height: @tab-bar-height;
+
+  .t-tab-bar {
+    position: relative;
+    margin: 0 auto;
+    width: calc(100% - 48rpx);
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 28rpx;
+    box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+
+  /* Selected item emphasis */
+  .t-tab-bar-item--checked {
+    color: @brand-color !important;
+    font-weight: 600;
+  }
+
+  .t-tab-bar-item {
+    margin: 0;
+    padding: 16rpx 24rpx;
+  }
+
+  /* Decorative background + safe area filler */
+  .tab-bg {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 52rpx;
+    background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(0,0,0,0.04) 100%);
+    z-index: -1;
+  }
+  .safe-bottom {
+    height: env(safe-area-inset-bottom);
+  }
+}

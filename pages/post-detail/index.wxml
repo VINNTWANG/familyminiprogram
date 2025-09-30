@@ -1,0 +1,94 @@
+<!-- pages/post-detail/index.wxml -->
+
+
+<view class="container">
+  <view class="native-navbar" style="height: {{navBarHeightRpx + statusBarHeightRpx}}rpx; padding-top: {{statusBarHeightRpx}}rpx;">
+    <view class="nav-content" style="height: {{navBarHeightRpx}}rpx;">
+      <view class="nav-left" bind:tap="navigateBack">
+        <t-icon name="chevron-left" size="44rpx" />
+      </view>
+      <view class="nav-title">{{i18n.detailTitle}}</view>
+      <view style="width: 100rpx;"></view>
+    </view>
+  </view>
+
+  <view class="page" style="padding-top: {{navBarHeightRpx + statusBarHeightRpx}}rpx;">
+    <view wx:if="{{isLoading}}" class="loading-container">
+      <view class="post-skeleton"></view>
+    </view>
+
+    <view wx:elif="{{loadError}}" class="error-container">
+      <text>{{i18n.errorTitle}}</text>
+      <text>{{i18n.errorSub}}</text>
+    </view>
+
+    <block wx:else>
+      <post-card post="{{post}}" bind:updatepost="onPostUpdate"></post-card>
+
+
+
+
+
+      <template name="commentItem">
+        <view class="comment {{isChild ? 'child-comment' : ''}}">
+          <image class="c-avatar" src="{{comment.authorAvatarUrl}}" />
+          <view class="c-meta">
+            <view class="name-line">
+              <view class="c-name">{{comment.authorNickName}}</view>
+              <view class="badges-wrapper">
+                <view wx:if="{{comment.authorIsAdmin}}">
+                  <t-icon name="check-circle-filled" size="28rpx" color="gold" />
+                </view>
+                <text class="badge personal-badge" wx:if="{{comment.authorRole === '个人认证'}}">{{i18n.certified}}</text>
+              </view>
+            </view>
+            <view class="c-text">
+              <block wx:if="{{comment.replyToNickName}}">
+                <text class="reply-to">{{i18n.replyPrefix}} @{{comment.replyToNickName}}: </text>
+              </block>
+              {{comment.content}}
+            </view>
+            <view class="c-footer">
+              <view class="c-time">{{comment.time}}</view>
+              <view class="reply-btn" bind:tap="onReply" data-comment="{{comment}}">{{i18n.replyPrefix}}</view>
+            </view>
+            <view class="child-comments-wrapper" wx:if="{{comment.children && comment.children.length > 0}}">
+              <block wx:for="{{comment.children}}" wx:for-item="childComment" wx:key="_id">
+                <template is="commentItem" data="{{comment: childComment, isChild: true}}" />
+              </block>
+                </view>
+              </view>
+            
+                          </view>      </template>
+
+      <view class="comments" wx:if="{{comments.length > 0}}">
+        <view class="comments-title">{{i18n.commentsTitle}}</view>
+        <block wx:for="{{comments}}" wx:key="_id">
+          <template is="commentItem" data="{{comment: item, isChild: false}}" />
+        </block>
+      </view>
+      <view class="status muted" wx:else>
+        {{i18n.emptyText}}
+      </view>
+    </block>
+  </view>
+
+  <view class="input-bar">
+    <view class="reply-indicator" wx:if="{{isReplying}}">
+      <view class="reply-indicator-text">{{i18n.replyPrefix}} @{{replyInfo.nickName}}</view>
+      <view class="cancel-reply-btn" bind:tap="cancelReply">×</view>
+    </view>
+    <view class="input-bar-main">
+      <input class="input" placeholder="{{inputPlaceholder}}" value="{{commentInputValue}}" bindinput="onCommentInputChange" focus="{{inputFocused}}" />
+      <view class="send" bind:tap="submitComment">{{i18n.sendLabel}}</view>
+    </view>
+  </view>
+
+  <view class="popup-layer" wx:if="{{showReactionPanel}}">
+    <view class="popup-overlay" bind:tap="toggleReactionPopup"></view>
+    <view class="reaction-popup" catchtap="noop">
+      <text class="emoji" wx:for="{{availableReactions}}" wx:key="*this" catchtap="onSelectReaction" data-emoji="{{item}}">{{item}}</text>
+    </view>
+  </view>
+</view>
+

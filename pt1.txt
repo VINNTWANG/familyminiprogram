@@ -1,0 +1,10 @@
+import dayjs from 'dayjs';
+import { emojiList } from '../../config/reactionConfig.js';
+const eventBus = getApp().eventBus;
+
+Page({
+  data: {
+    post: null,
+    comments: [],
+    isLoading: true,
+    

@@ -1,0 +1,25 @@
+<t-navbar title="通知中心" left-arrow />
+<view class="page">
+  <t-cell-group title="未读">
+    <block wx:if="{{unread.length>0}}">
+      <t-cell wx:for="{{unread}}" wx:key="_id" title="{{formatTitle(item)}}" note="{{formatNote(item)}}" bind:click="onOpen" data-id="{{item._id}}">
+        <view slot="left-icon" style="margin-right: 8rpx;">
+          <t-badge dot>
+            <t-avatar size="24" image="{{ item.from && item.from.avatarUrl || '' }}" />
+          </t-badge>
+        </view>
+        <view slot="right-icon">
+          <t-button size="small" bind:tap="onMarkRead" data-id="{{item._id}}">标记已读</t-button>
+        </view>
+      </t-cell>
+    </block>
+    <t-cell wx:else title="暂无未读" />
+  </t-cell-group>
+
+  <t-cell-group title="已读">
+    <block wx:if="{{read.length>0}}">
+      <t-cell wx:for="{{read}}" wx:key="_id" title="{{formatTitle(item)}}" note="{{formatNote(item)}}" bind:click="onOpen" data-id="{{item._id}}" />
+    </block>
+    <t-cell wx:else title="暂无已读" />
+  </t-cell-group>
+</view>

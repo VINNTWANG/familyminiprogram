@@ -1,0 +1,75 @@
+<t-navbar title="搜索" left-arrow />
+<view class="page search-page">
+  
+  <!-- New Form-based Search Bar -->
+  <form bindsubmit="onFormSubmit">
+    <view class="search-bar-wrapper">
+      <view class="search-input-container">
+        <t-icon name="search" class="search-bar-icon" />
+        <input 
+          class="search-bar-input"
+          name="keyword" 
+          placeholder="请搜索你想要的内容"
+          value="{{searchValue}}"
+          focus
+        />
+      </view>
+      <button class="search-bar-button" form-type="submit">搜索</button>
+    </view>
+  </form>
+
+  <!-- History and Popular (will be hidden when results are shown) -->
+  <view class="search-wrap" wx:if="{{!showResults}}">
+    <view class="history-wrap">
+      <view class="search-header">
+        <text class="search-title">历史记录</text>
+        <t-icon name="delete" size="large" class="search-clear" bind:click="handleClearHistory" />
+      </view>
+      <view class="search-content">
+        <view
+          class="search-item"
+          wx:for="{{historyWords}}"
+          bind:tap="handleHistoryTap"
+          data-keyword="{{item}}"
+          wx:key="*this"
+        >
+          <t-tag class="history-item margin-12" max-width="{{343}}" variant="light">{{item}}</t-tag>
+        </view>
+      </view>
+    </view>
+    <view class="popular-wrap">
+      <view class="search-header">
+        <text class="search-title">搜索发现</text>
+      </view>
+      <view class="search-content">
+        <view
+          class="search-item"
+          wx:for="{{popularWords}}"
+          bind:tap="handlePopularTap"
+          data-keyword="{{item}}"
+          wx:key="*this"
+        >
+          <t-tag class="popular-item margin-12" max-width="{{343}}" variant="light" icon="search"> {{item}} </t-tag>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Search Results -->
+  <view class="search-results-wrap" wx:if="{{showResults}}">
+    <t-loading theme="spinner" text="加载中..." wx:if="{{isLoading}}" />
+    <block wx:elif="{{searchResults.length > 0}}">
+      <view class="post-list">
+        <block wx:for="{{searchResults}}" wx:key="_id">
+          <view class="post-item-wrapper">
+            <thread-item post="{{item}}" bind:openDetail="openDetail" />
+          </view>
+        </block>
+      </view>
+    </block>
+    <view class="empty-state" wx:elif="{{noResults}}">
+      <t-empty description="没有找到相关内容" />
+    </view>
+  </view>
+
+</view>

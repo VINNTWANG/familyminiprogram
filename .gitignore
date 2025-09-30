@@ -1,0 +1,17 @@
+# Dependencies
+/node_modules
+
+# Private configs
+project.private.config.json
+
+# WeChat Mini Program build artifacts
+/miniprogram_npm/
+
+# Temporary files
+*.log
+*.tmp
+*.backup
+
+# OS-generated files
+.DS_Store
+__MACOSX/
