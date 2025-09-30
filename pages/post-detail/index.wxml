@@ -29,45 +29,37 @@
 
 
 
-      <template name="commentItem">
-        <view class="comment {{isChild ? 'child-comment' : ''}}">
-          <image class="c-avatar" src="{{comment.authorAvatarUrl}}" />
-          <view class="c-meta">
-            <view class="name-line">
-              <view class="c-name">{{comment.authorNickName}}</view>
-              <view class="badges-wrapper">
-                <view wx:if="{{comment.authorIsAdmin}}">
-                  <t-icon name="check-circle-filled" size="28rpx" color="gold" />
-                </view>
-                <text class="badge personal-badge" wx:if="{{comment.authorRole === '个人认证'}}">{{i18n.certified}}</text>
-              </view>
-            </view>
-            <view class="c-text">
-              <block wx:if="{{comment.replyToNickName}}">
-                <text class="reply-to">{{i18n.replyPrefix}} @{{comment.replyToNickName}}: </text>
-              </block>
-              {{comment.content}}
-            </view>
-            <view class="c-footer" style="display: flex; justify-content: space-between; align-items: center;">
-              <view class="c-time">{{comment.time}}</view>
-              <view style="display: flex; align-items: center;">
-                <text class="delete-btn" style="margin-left: 24rpx; font-size: 24rpx; color: #8a9199; background-color: #f2f3f5; padding: 6rpx 14rpx; border-radius: 8rpx;" wx:if="{{currentUserInfo._openid === comment._openid || currentUserInfo._openid === post._openid}}" bind:tap="onDeleteComment" data-comment-id="{{comment._id}}">删除</text>
-                <text class="reply-btn" style="margin-left: 16rpx; font-size: 24rpx; color: #0052D9; background-color: #f0f5ff; padding: 6rpx 14rpx; border-radius: 8rpx;" bind:tap="onReply" data-id="{{comment._id}}" data-name="{{comment.authorNickName}}" data-openid="{{comment._openid}}">回复</text>
-              </view>
-            </view>
-            <view class="child-comments-wrapper" wx:if="{{comment.children && comment.children.length > 0}}">
-              <block wx:for="{{comment.children}}" wx:for-item="childComment" wx:key="_id">
-                <template is="commentItem" data="{{comment: childComment, isChild: true, post: post, currentUserInfo: currentUserInfo}}" />
-              </block>
-                </view>
-              </view>
-            
-                          </view>      </template>
-
       <view class="comments" wx:if="{{comments.length > 0}}">
         <view class="comments-title">{{i18n.commentsTitle}}</view>
-        <block wx:for="{{comments}}" wx:key="_id">
-          <template is="commentItem" data="{{comment: item, isChild: false, post: post, currentUserInfo: currentUserInfo}}" />
+        <block wx:for="{{comments}}" wx:for-item="comment" wx:key="_id">
+          <!-- Render a single comment item. Indentation is controlled by depth -->
+          <view class="comment {{comment.depth > 0 ? 'child-comment' : ''}}" style="margin-left: {{comment.depth * 40}}rpx; width: calc(100% - {{comment.depth * 40}}rpx);">
+            <image class="c-avatar" src="{{comment.authorAvatarUrl}}" />
+            <view class="c-meta">
+              <view class="name-line">
+                <view class="c-name">{{comment.authorNickName}}</view>
+                <view class="badges-wrapper">
+                  <view wx:if="{{comment.authorIsAdmin}}">
+                    <t-icon name="check-circle-filled" size="28rpx" color="gold" />
+                  </view>
+                  <text class="badge personal-badge" wx:if="{{comment.authorRole === '个人认证'}}">{{i18n.certified}}</text>
+                </view>
+              </view>
+              <view class="c-text">
+                <block wx:if="{{comment.replyToNickName}}">
+                  <text class="reply-to">回复 @{{comment.replyToNickName}}: </text>
+                </block>
+                {{comment.content}}
+              </view>
+              <view class="c-footer" style="display: flex; justify-content: space-between; align-items: center;">
+                <view class="c-time">{{comment.time}}</view>
+                <view style="display: flex; align-items: center;">
+                  <view class="delete-btn" style="margin-left: 24rpx; font-size: 24rpx; color: #8a9199;" wx:if="{{currentUserInfo._openid === comment._openid || currentUserInfo._openid === post._openid}}" bind:tap="onDeleteComment" data-comment-id="{{comment._id}}">删除</view>
+                  <view class="reply-btn" style="margin-left: 24rpx; font-size: 24rpx; color: #0052D9;" bind:tap="onReply" data-id="{{comment._id}}" data-name="{{comment.authorNickName}}" data-openid="{{comment._openid}}">{{i18n.replyPrefix}}</view>
+                </view>
+              </view>
+            </view>
+          </view>
         </block>
       </view>
       <view class="status muted" wx:else>
