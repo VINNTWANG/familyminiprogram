@@ -27,6 +27,7 @@ exports.main = async (event, context) => {
       const updateData = {};
       if (nickName) updateData.nickName = nickName;
       if (avatarUrl) updateData.avatarUrl = avatarUrl;
+      if (event.coverPhotoUrl) updateData.coverPhotoUrl = event.coverPhotoUrl;
 
       if (Object.keys(updateData).length > 0) {
         await usersCollection.doc(userRecord.data[0]._id).update({ data: updateData });

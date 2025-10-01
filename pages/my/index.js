@@ -205,6 +205,47 @@ Page({
     });
   },
 
+  onAvatarAreaTap() {
+    wx.chooseAvatar({
+      success: async (res) => {
+        const { avatarUrl } = res;
+        if (!avatarUrl) return;
+
+        wx.showLoading({ title: '更新中...' });
+
+        try {
+          const uploadResult = await wx.cloud.uploadFile({
+            cloudPath: `user_avatars/${Date.now()}-${Math.floor(Math.random() * 1000)}.png`,
+            filePath: avatarUrl,
+          });
+          const newAvatarFileID = uploadResult.fileID;
+
+          const updateResult = await wx.cloud.callFunction({
+            name: 'login',
+            data: { 
+              action: 'updateProfile',
+              avatarUrl: newAvatarFileID, 
+            },
+          });
+
+          if (updateResult.result && updateResult.result.data) {
+            const updatedUserInfo = updateResult.result.data;
+            wx.setStorageSync('userInfo', updatedUserInfo);
+            this.fetchUserProfile(); // Reload profile to get new temp URL
+            wx.showToast({ title: '头像更新成功' });
+          } else {
+            throw new Error((updateResult.result && updateResult.result.message) || 'Update failed');
+          }
+        } catch (err) {
+          wx.showToast({ title: '更新失败，请重试', icon: 'none' });
+          console.error('Failed to change avatar', err);
+        } finally {
+          wx.hideLoading();
+        }
+      }
+    });
+  },
+
   onChooseAvatar(e) {
     const { avatarUrl } = e.detail || {};
     if (avatarUrl) this.setData({ tempAvatarUrl: avatarUrl });
