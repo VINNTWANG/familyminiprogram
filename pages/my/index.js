@@ -192,7 +192,6 @@ Page({
 
   goNotifications() { wx.navigateTo({ url: '/pages/notifications/index' }); },
   goPersonalVerify() { wx.navigateTo({ url: '/pages/verify/personal/index' }); },
-  goFamilyVerify() { wx.navigateTo({ url: '/pages/verify/family/index' }); },
 
   goToAdminPage() {
     wx.navigateTo({ url: '/pages/admin/verify/index' });
@@ -202,60 +201,6 @@ Page({
     wx.showToast({
       title: '管理员',
       icon: 'none'
-    });
-  },
-
-  onAvatarAreaTap() {
-    wx.chooseAvatar({
-      success: async (res) => {
-        const { avatarUrl } = res;
-        if (!avatarUrl) return;
-
-        wx.showLoading({ title: '更新中...' });
-
-        try {
-          // 1. Upload the new avatar
-          const uploadResult = await wx.cloud.uploadFile({
-            cloudPath: `user_avatars/${Date.now()}-${Math.floor(Math.random() * 1000)}.png`,
-            filePath: avatarUrl,
-          });
-          const newAvatarFileID = uploadResult.fileID;
-
-          // 2. Call cloud function to update the user record
-          const updateResult = await wx.cloud.callFunction({
-            name: 'login',
-            data: { 
-              action: 'updateProfile',
-              avatarUrl: newAvatarFileID, 
-            },
-          });
-
-          if (updateResult.result && updateResult.result.data) {
-            // 3. Update local data and storage
-            const updatedUserInfo = updateResult.result.data;
-            wx.setStorageSync('userInfo', updatedUserInfo);
-            
-            let displayAvatarUrl = updatedUserInfo.avatarUrl;
-            if (displayAvatarUrl && displayAvatarUrl.startsWith('cloud://')) {
-                const tempUrlRes = await wx.cloud.getTempFileURL({ fileList: [displayAvatarUrl] });
-                if (tempUrlRes.fileList && tempUrlRes.fileList[0] && tempUrlRes.fileList[0].status === 0) {
-                  displayAvatarUrl = tempUrlRes.fileList[0].tempFileURL;
-                }
-            }
-            updatedUserInfo.avatarUrl = displayAvatarUrl;
-
-            this.setData({ personalInfo: updatedUserInfo });
-            wx.showToast({ title: '头像更新成功' });
-          } else {
-            throw new Error((updateResult.result && updateResult.result.message) || 'Update failed');
-          }
-        } catch (err) {
-          wx.showToast({ title: '更新失败，请重试', icon: 'none' });
-          console.error('Failed to change avatar', err);
-        } finally {
-          wx.hideLoading();
-        }
-      }
     });
   },
 

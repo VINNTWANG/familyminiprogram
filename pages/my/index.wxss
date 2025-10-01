@@ -37,8 +37,6 @@
 .profile-content-container .admin-cell .info-label { color: #0052D9; font-weight: bold; }
 .profile-content-container .badge { font-size: 22rpx; font-weight: bold; padding: 4rpx 12rpx; border-radius: 8rpx; }
 
-
-
 /* Login Prompt */
 .login-prompt-container { padding: 100rpx 32rpx; display: flex; flex-direction: column; align-items: center; }
 .login-prompt-container .login-title { font-size: 32rpx; font-weight: bold; margin-bottom: 40rpx; }
