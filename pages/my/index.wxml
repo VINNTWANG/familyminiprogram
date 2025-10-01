@@ -55,6 +55,10 @@
             <text class="info-label">更换头像</text>
             <t-icon name="chevron-right" size="40rpx" class="cell-arrow" />
           </view>
+          <view class="info-row" bind:tap="onEditNickname">
+            <text class="info-label">修改昵称</text>
+            <t-icon name="chevron-right" size="40rpx" class="cell-arrow" />
+          </view>
           <view class="info-row" bind:tap="goNotifications">
             <text class="info-label">通知中心</text>
             <t-icon name="chevron-right" size="40rpx" class="cell-arrow" />

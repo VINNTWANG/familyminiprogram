@@ -246,6 +246,54 @@ Page({
     });
   },
 
+  onEditNickname() {
+    wx.showModal({
+      title: '修改昵称',
+      editable: true,
+      placeholderText: '请输入新的昵称',
+      content: this.data.personalInfo.nickName,
+      success: async (res) => {
+        if (res.confirm && res.content) {
+          const newNickName = res.content.trim();
+          if (!newNickName) {
+            wx.showToast({ title: '昵称不能为空', icon: 'none' });
+            return;
+          }
+          if (newNickName === this.data.personalInfo.nickName) {
+            return; // No change
+          }
+
+          wx.showLoading({ title: '更新中...' });
+          try {
+            const updateResult = await wx.cloud.callFunction({
+              name: 'login',
+              data: {
+                action: 'updateProfile',
+                nickName: newNickName,
+              },
+            });
+
+            if (updateResult.result && updateResult.result.data) {
+              const updatedUserInfo = updateResult.result.data;
+              wx.setStorageSync('userInfo', updatedUserInfo);
+              this.setData({
+                'personalInfo.nickName': updatedUserInfo.nickName,
+              });
+              wx.showToast({ title: '昵称更新成功' });
+            } else {
+              throw new Error((updateResult.result && updateResult.result.message) || 'Update failed');
+            }
+          } catch (err) {
+            wx.showToast({ title: '更新失败，请重试', icon: 'none' });
+            console.error('Failed to change nickname', err);
+          } finally {
+            wx.hideLoading();
+          }
+        }
+      },
+    });
+  },
+
   onChooseAvatar(e) {
     const { avatarUrl } = e.detail || {};
     if (avatarUrl) this.setData({ tempAvatarUrl: avatarUrl });
