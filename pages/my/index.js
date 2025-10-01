@@ -192,6 +192,7 @@ Page({
 
   goNotifications() { wx.navigateTo({ url: '/pages/notifications/index' }); },
   goPersonalVerify() { wx.navigateTo({ url: '/pages/verify/personal/index' }); },
+  goFamilyVerify() { wx.navigateTo({ url: '/pages/verify/family/index' }); },
 
   goToAdminPage() {
     wx.navigateTo({ url: '/pages/admin/verify/index' });
