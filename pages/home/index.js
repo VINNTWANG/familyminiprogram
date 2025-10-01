@@ -48,6 +48,8 @@ Page({
     this.loadPosts(true);
     this.fetchBanners();
     this.setGreeting();
+    // Listen for logout requests from the nav component
+    eventBus.on('request-logout', this.handleLogout.bind(this));
   },
 
   // Fetch banners
