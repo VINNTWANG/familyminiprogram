@@ -1,1 +1,32 @@
-<view>照片墙</view>
+<wxs src="./index.wxs" module="tools" />
+
+<view class="photowall-container">
+  <!-- Loading Skeleton -->
+  <block wx:if="{{isLoading && images.length === 0}}">
+    <view class="skeleton-loading">
+      <view class="skeleton-item" wx:for="{{[1,2,3,4,5,6]}}" wx:key="*this"></view>
+    </view>
+  </block>
+
+  <!-- Waterfall Layout -->
+  <block wx:else>
+    <view class="waterfall-container">
+      <view class="column" wx:for="{{tools.splitData(images, 2)}}" wx:for-item="columnItems" wx:key="index">
+        <view class="photo-card" wx:for="{{columnItems}}" wx:for-item="photo" wx:key="src">
+          <image src="{{photo.src}}" mode="widthFix" lazy-load="true" />
+        </view>
+      </view>
+    </view>
+
+    <!-- Load More / End of List -->
+    <view class="list-footer">
+      <t-loading wx:if="{{isLoading && images.length > 0}}" theme="spinner" text="加载中..." />
+      <view wx:elif="{{!hasMore && images.length > 0}}" class="end-of-list">没有更多了</view>
+    </view>
+  </block>
+
+  <!-- Empty State -->
+  <view class="empty-state" wx:if="{{!isLoading && images.length === 0}}">
+    <t-empty description="还没有任何动态发布过图片哦" />
+  </view>
+</view>

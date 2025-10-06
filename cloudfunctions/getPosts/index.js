@@ -6,18 +6,25 @@ const _ = db.command;
 
 // 分页拉取动态列表
 exports.main = async (event, context) => {
-  const { pageSize, lastCreateTime } = event;
+  const { pageSize, lastCreateTime, imageOnly } = event;
 
   try {
-    let query = db.collection('posts').orderBy('createTime', 'desc');
+    let query = {};
 
     if (lastCreateTime) {
-      query = query.where({
-        createTime: _.lt(new Date(lastCreateTime))
-      });
+      query.createTime = _.lt(new Date(lastCreateTime));
     }
 
-    const postRes = await query.limit(pageSize || 10).get();
+    // If imageOnly is true, add condition to fetch posts that have images.
+    if (imageOnly) {
+      query.images = _.exists(true).and(_.neq([]));
+    }
+
+    const postRes = await db.collection('posts')
+      .where(query)
+      .orderBy('createTime', 'desc')
+      .limit(pageSize || 10)
+      .get();
 
     return postRes.data || [];
 

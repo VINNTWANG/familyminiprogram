@@ -1,0 +1,24 @@
+var splitData = function (data, cols) {
+  if (!data || data.length === 0) {
+    return [];
+  }
+
+  var colNum = parseInt(cols) || 2;
+  var result = [];
+  for (var i = 0; i < colNum; i++) {
+    result.push([]);
+  }
+
+  // For simplicity, we distribute images one by one, not by height
+  // A true waterfall layout would need image height info, which is complex in WXS
+  for (var j = 0; j < data.length; j++) {
+    var colIndex = j % colNum;
+    result[colIndex].push(data[j]);
+  }
+
+  return result;
+};
+
+module.exports = {
+  splitData: splitData,
+};

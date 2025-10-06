@@ -1,0 +1,64 @@
+/* pages/photowall/index.wxss */
+page {
+  background-color: #f5f5f5;
+}
+
+.photowall-container {
+  padding: 16rpx;
+}
+
+.waterfall-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.column {
+  width: 49%;
+  display: flex;
+  flex-direction: column;
+}
+
+.photo-card {
+  width: 100%;
+  margin-bottom: 16rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+  background-color: #fff;
+}
+
+.photo-card image {
+  width: 100%;
+  display: block;
+}
+
+.list-footer {
+  text-align: center;
+  padding: 20rpx 0;
+  color: #999;
+  font-size: 24rpx;
+}
+
+.end-of-list {
+  color: #ccc;
+}
+
+.empty-state {
+  padding-top: 200rpx;
+}
+
+/* Skeleton Loading Styles */
+.skeleton-loading {
+  display: flex;
+  justify-content: space-between;
+}
+.skeleton-item {
+  width: 49%;
+  background-color: #e9e9e9;
+  border-radius: 16rpx;
+  height: 300rpx; /* Default height */
+  margin-bottom: 16rpx;
+}
+.skeleton-item:nth-child(odd) { height: 400rpx; }
+.skeleton-item:nth-child(even) { height: 350rpx; }
