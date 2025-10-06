@@ -56,8 +56,8 @@
           <t-grid-item t-class="quick-action-item" text="{{i18n.publish}}" bind:click="goRelease">
             <t-icon name="edit-1" size="24" />
           </t-grid-item>
-          <t-grid-item t-class="quick-action-item" text="{{i18n.family}}" bind:click="goFamily">
-            <t-icon name="home" size="24" />
+          <t-grid-item t-class="quick-action-item" text="照片墙" bind:click="goPhotoWall">
+            <t-icon name="image" size="24" />
           </t-grid-item>
           <t-grid-item t-class="quick-action-item" text="{{i18n.remind}}" bind:click="goNotifications">
             <t-icon name="notification" size="24" />

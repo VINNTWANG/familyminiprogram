@@ -50,6 +50,8 @@ Page({
     this.setGreeting();
     // Listen for logout requests from the nav component
     eventBus.on('request-logout', this.handleLogout.bind(this));
+    eventBus.on('changeAvatar', this.handleChangeAvatar.bind(this));
+    eventBus.on('editNickname', this.handleEditNickname.bind(this));
   },
 
   // Fetch banners
@@ -76,6 +78,10 @@ Page({
     eventBus.off('post-updated', this.handlePostUpdate);
     eventBus.off('post-deleted', this.handlePostDelete);
     eventBus.off('request-logout', this.handleLogout);
+    eventBus.off('changeAvatar', this.handleChangeAvatar);
+    eventBus.off('editNickname', this.handleEditNickname);
+    eventBus.off('changeAvatar', this.handleChangeAvatar);
+    eventBus.off('editNickname', this.handleEditNickname);
   },
 
   onShow() {
@@ -182,8 +188,22 @@ Page({
 
       let urlMap = {};
       if (uniqueFileIDs.length > 0) {
-        const tempUrlRes = await wx.cloud.getTempFileURL({ fileList: uniqueFileIDs });
-        urlMap = tempUrlRes.fileList.reduce((map, item) => { if (item.status === 0) map[item.fileID] = item.tempFileURL; return map; }, {});
+        // wx.cloud.getTempFileURL has a per-call limit (50). Batch requests safely.
+        const MAX_PER_CALL = 50;
+        for (let i = 0; i < uniqueFileIDs.length; i += MAX_PER_CALL) {
+          const batch = uniqueFileIDs.slice(i, i + MAX_PER_CALL);
+          try {
+            const tempUrlRes = await wx.cloud.getTempFileURL({ fileList: batch });
+            (tempUrlRes.fileList || []).forEach(item => {
+              if (item && item.status === 0 && item.fileID && item.tempFileURL) {
+                urlMap[item.fileID] = item.tempFileURL;
+              }
+            });
+          } catch (e) {
+            console.error('[getTempFileURL] batch failed', e);
+            // Continue other batches even if one fails
+          }
+        }
       }
 
       const enrichedPosts = postsData.map(post => {
@@ -309,6 +329,7 @@ Page({
   openDetail(e) { const id = e && e.detail && e.detail.id; if (id) wx.navigateTo({ url: `/pages/post-detail/index?id=${id}` }); },
   goRelease() { wx.navigateTo({ url: '/pages/release/index' }); },
   goFamily() { wx.navigateTo({ url: '/pages/family/index' }); },
+  goPhotoWall() { wx.navigateTo({ url: '/pages/photowall/index' }); },
   goNotifications() { wx.navigateTo({ url: '/pages/notifications/index' }); },
   onReachBottom() { this.loadPosts(false); },
   onScroll(e) { const y = (e && e.detail && e.detail.scrollTop) || 0; if (y > 300 && !this.data.showBackTop) this.setData({ showBackTop: true }); if (y <= 300 && this.data.showBackTop) this.setData({ showBackTop: false }); const last = this.lastScrollY || 0; const delta = y - last; const threshold = 8; if (delta > threshold && !this.data.releaseFabHidden) { this.setData({ releaseFabHidden: true }); this._hideFab(); } else if (delta < -threshold && this.data.releaseFabHidden) { this.setData({ releaseFabHidden: false }); this._showFab(); } this.lastScrollY = y; },
@@ -331,4 +352,8 @@ Page({
     const randomIndex = subList.length ? Math.floor(Math.random() * subList.length) : 0;
     this.setData({ activeGreetingSub: subList.length ? subList[randomIndex] : '' });
   },
+
+
+
+
 });
