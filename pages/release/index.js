@@ -217,7 +217,7 @@ Page({
 
   onRelease: async function () {
     if (!this.data.canSubmit || this.data.isPublishing) return;
-    this.setData({ isPublishing: true });
+    this.setData({ isPublishing: true, publishingProgress: 0 });
     this._recalcCanSubmit();
 
     const userInfo = wx.getStorageSync('userInfo');
@@ -244,41 +244,61 @@ Page({
     wx.showLoading({ title: '发布中...', mask: true });
     try {
       const db = wx.cloud.database();
+      const filesToUpload = this.data.mediaFiles || [];
+      
       const imageCloudPaths = [];
       const videoCloudPaths = [];
       const audioCloudPaths = [];
+      let failedUploads = 0;
 
-      const files = this.data.mediaFiles || [];
-      const total = files.length;
-      let failed = [];
-      for (let i = 0; i < total; i++) {
-        const file = files[i];
-        let dir = 'post_images';
-        let fileType = 'image';
-        if (file.type === 'video') { dir = 'post_videos'; fileType = 'video'; }
-        else if (file.type === 'audio') { dir = 'post_audios'; fileType = 'audio'; }
-        
-        const localPath = file.url;
-        const ext = (localPath.split('.').pop() || 'tmp').replace(/\?.*$/, '');
-        const cloudPath = `${dir}/${Date.now()}-${Math.floor(Math.random() * 1000000)}.${ext}`;
-        
-        try {
-          this.setData({ publishingProgress: total ? Math.round(((i) / total) * 100) : 0 });
-          const res = await wx.cloud.uploadFile({ cloudPath, filePath: localPath });
-          if (fileType === 'video') videoCloudPaths.push(res.fileID);
-          else if (fileType === 'audio') audioCloudPaths.push(res.fileID);
-          else imageCloudPaths.push(res.fileID);
-        } catch (e) {
-          failed.push({ file, fileType });
+      if (filesToUpload.length > 0) {
+        let completedCount = 0;
+        const totalCount = filesToUpload.length;
+
+        const uploadPromises = filesToUpload.map(file => {
+          let dir = 'post_images';
+          if (file.type === 'video') dir = 'post_videos';
+          else if (file.type === 'audio') dir = 'post_audios';
+          
+          const localPath = file.url;
+          const ext = (localPath.split('.').pop() || 'tmp').replace(/\?.*$/, '');
+          const cloudPath = `${dir}/${Date.now()}-${Math.floor(Math.random() * 1000000)}.${ext}`;
+          
+          const promise = wx.cloud.uploadFile({ cloudPath, filePath: localPath })
+            .then(res => ({ ...res, fileType: file.type }));
+          
+          // Add progress tracking to each promise
+          promise.finally(() => {
+            completedCount++;
+            this.setData({ publishingProgress: Math.round((completedCount / totalCount) * 100) });
+          });
+
+          return promise;
+        });
+
+        const results = await Promise.allSettled(uploadPromises);
+
+        results.forEach(res => {
+          if (res.status === 'fulfilled') {
+            const { fileID, fileType } = res.value;
+            if (fileType === 'video') videoCloudPaths.push(fileID);
+            else if (fileType === 'audio') audioCloudPaths.push(fileID);
+            else imageCloudPaths.push(fileID);
+          } else {
+            failedUploads++;
+          }
+        });
+
+        if (failedUploads > 0) {
+          // This toast might be overwritten by the success/failure toast later, which is fine.
+          wx.showToast({ title: `${failedUploads}个文件上传失败`, icon: 'none' });
         }
       }
-      this.setData({ publishingProgress: 100 });
 
-      if (failed.length) {
-        wx.showToast({ title: `${failed.length}个文件上传失败`, icon: 'none' });
-      }
+      const hasText = this.data.content.trim().length > 0;
+      const hasUploadedMedia = (imageCloudPaths.length + videoCloudPaths.length + audioCloudPaths.length) > 0;
 
-      if (!(failed.length === total && total > 0)) {
+      if (hasText || hasUploadedMedia) {
         await db.collection('posts').add({
           data: {
             content: this.data.content,
@@ -290,7 +310,7 @@ Page({
             reactions: [],
             commentCount: 0,
             reviewStatus: config.contentCheckMode === 'off' ? 'approved' : 'pending',
-            visibility: 'public', // Simplified visibility
+            visibility: 'public',
           },
         });
 
@@ -298,7 +318,7 @@ Page({
         wx.showToast({ title: '发布成功', icon: 'success' });
         setTimeout(() => { wx.reLaunch({ url: '/pages/home/index?oper=release' }); }, 1500);
       } else {
-          throw new Error('All file uploads failed');
+        throw new Error('发布内容为空且所有文件上传失败');
       }
     } catch (err) {
       wx.hideLoading();
