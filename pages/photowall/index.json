@@ -1,3 +1,7 @@
 {
-  "usingComponents": {}
+  "usingComponents": {
+    "t-navbar": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/navbar/navbar",
+    "t-empty": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/empty/empty",
+    "t-loading": "/miniprogram_npm/miniprogram_npm/tdesign-miniprogram/loading/loading"
+  }
 }

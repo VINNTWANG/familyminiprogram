@@ -18,6 +18,8 @@ Component({
       { title: '首页', icon: 'home', url: '/pages/home/index', tab: true },
       { title: '家庭', icon: 'usergroup', url: '/pages/family/index' },
       { title: '设置', icon: 'setting', url: '/pages/setting/index' },
+      { title: '更换头像', icon: 'user-avatar', event: 'changeAvatar' },
+      { title: '修改昵称', icon: 'edit-1', event: 'editNickname' },
     ],
   },
   lifetimes: {
@@ -43,7 +45,9 @@ Component({
       const { item } = e?.currentTarget?.dataset || {};
       if (!item) return;
       this.closeDrawer();
-      if (item.tab) {
+      if (item.event) {
+        getApp().eventBus.emit(item.event);
+      } else if (item.tab) {
         wx.switchTab({ url: item.url });
       } else {
         wx.navigateTo({ url: item.url });

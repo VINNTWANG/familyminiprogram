@@ -24,7 +24,7 @@ Page({
         data: {
           pageSize: this.data.pageSize,
           lastCreateTime: reset ? null : this.data.lastCreateTime,
-          imageOnly: true, // Custom flag for this cloud function
+          imageOnly: true,
         },
       });
 
@@ -34,24 +34,35 @@ Page({
         return;
       }
 
-      const allImageIds = posts.flatMap(post => post.images || []);
+      const allImageIds = posts.flatMap(post => post.images || []).filter(id => id && id.startsWith('cloud://'));
+      
       if (allImageIds.length === 0) {
         this.setData({ isLoading: false });
         if (posts.length < this.data.pageSize) {
           this.setData({ hasMore: false });
         } else {
-          // If no images in this batch, but there might be more posts, try loading next page
           const lastPost = posts[posts.length - 1];
           this.setData({ lastCreateTime: lastPost.createTime }, () => this.loadImages());
         }
         return;
       }
 
-      const tempUrlRes = await wx.cloud.getTempFileURL({ fileList: allImageIds });
-      const urlMap = tempUrlRes.fileList.reduce((map, item) => {
-        if (item.status === 0) map[item.fileID] = item.tempFileURL;
-        return map;
-      }, {});
+      // Batch fetch temporary URLs to avoid exceeding the 50 limit
+      const urlMap = {};
+      const MAX_PER_CALL = 50;
+      for (let i = 0; i < allImageIds.length; i += MAX_PER_CALL) {
+        const batch = allImageIds.slice(i, i + MAX_PER_CALL);
+        try {
+          const tempUrlRes = await wx.cloud.getTempFileURL({ fileList: batch });
+          (tempUrlRes.fileList || []).forEach(item => {
+            if (item && item.status === 0 && item.fileID && item.tempFileURL) {
+              urlMap[item.fileID] = item.tempFileURL;
+            }
+          });
+        } catch (e) {
+          console.error('[getTempFileURL] batch failed', e);
+        }
+      }
 
       const newImages = posts.flatMap(post => 
         (post.images || []).map(id => ({
@@ -81,5 +92,14 @@ Page({
 
   onPullDownRefresh: function () {
     this.loadImages(true).finally(() => wx.stopPullDownRefresh());
+  },
+
+  onPhotoTap: function (e) {
+    const postId = e.currentTarget.dataset.postid;
+    if (postId) {
+      wx.navigateTo({
+        url: `/pages/post-detail/index?id=${postId}`,
+      });
+    }
   },
 });

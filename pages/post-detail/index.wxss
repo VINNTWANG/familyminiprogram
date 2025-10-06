@@ -199,3 +199,10 @@ page { background: #f7f8fa; }
   color: #8a9299;
   padding: 0 8rpx;
 }
+
+.child-comment {
+  padding: 16rpx;
+  background-color: #f7f8fa;
+  border-radius: 12rpx;
+  margin-top: 8rpx; /* Replace margin-bottom for better spacing */
+}

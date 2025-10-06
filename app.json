@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/home/index",
+    "pages/photowall/index",
     "pages/post-detail/index",
     "pages/user-profile/index",
     "pages/release/index",

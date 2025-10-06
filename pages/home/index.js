@@ -50,8 +50,8 @@ Page({
     this.setGreeting();
     // Listen for logout requests from the nav component
     eventBus.on('request-logout', this.handleLogout.bind(this));
-    eventBus.on('changeAvatar', this.handleChangeAvatar.bind(this));
-    eventBus.on('editNickname', this.handleEditNickname.bind(this));
+    // eventBus.on('changeAvatar', this.handleChangeAvatar.bind(this));
+    // eventBus.on('editNickname', this.handleEditNickname.bind(this));
   },
 
   // Fetch banners
@@ -78,10 +78,10 @@ Page({
     eventBus.off('post-updated', this.handlePostUpdate);
     eventBus.off('post-deleted', this.handlePostDelete);
     eventBus.off('request-logout', this.handleLogout);
-    eventBus.off('changeAvatar', this.handleChangeAvatar);
-    eventBus.off('editNickname', this.handleEditNickname);
-    eventBus.off('changeAvatar', this.handleChangeAvatar);
-    eventBus.off('editNickname', this.handleEditNickname);
+    // eventBus.off('changeAvatar', this.handleChangeAvatar);
+    // eventBus.off('editNickname', this.handleEditNickname);
+    // eventBus.off('changeAvatar', this.handleChangeAvatar);
+    // eventBus.off('editNickname', this.handleEditNickname);
   },
 
   onShow() {
