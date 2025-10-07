@@ -25,12 +25,12 @@
 
   <block wx:elif="{{notifications.length > 0}}">
     <view class="notification-list">
-      <view wx:for="{{notifications}}" wx:key="_id" class="notification-item {{!item.isRead ? 'unread' : ''}}" bind:tap="onNotificationTap" data-postid="{{item.postId}}">
+      <view wx:for="{{notifications}}" wx:key="_id" class="notification-item {{!item.isRead ? 'unread' : ''}}" bind:tap="onNotificationTap" data-postid="{{item.postId}}" data-commentid="{{item.comment._id}}">
         <t-avatar class="item-avatar" size="large" image="{{item.sender.avatarUrl}}" />
         <view class="item-content">
           <view class="item-header">
             <text class="item-nickname">{{item.sender.nickName || '家庭成员'}}</text>
-            <text class="item-time">{{item.createTimeFormatted}}</text>
+            <text class="item-time">{{item.createTime}}</text>
           </view>
           <view class="item-body">
             <block wx:if="{{item.type === 'reaction'}}">
@@ -39,7 +39,7 @@
             </block>
             <block wx:elif="{{item.type === 'comment'}}">
               <text class="action-text">评论了你的帖子</text>
-              <view class="post-snippet">{{item.post.content}}</view>
+              <view class="post-snippet">{{item.comment.content}}</view>
             </block>
             <block wx:else>
               <text>发来一条新通知</text>

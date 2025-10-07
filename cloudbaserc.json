@@ -1,0 +1,18 @@
+{
+  "envId": "cloud1-9g6fy6vgc0c01f3d",
+  "functionRoot": "./cloudfunctions",
+  "functions": [
+    {
+      "name": "getNotificationList",
+      "runtime": "Nodejs16.13"
+    },
+    {
+      "name": "manageComment",
+      "runtime": "Nodejs16.13"
+    },
+    {
+      "name": "manageReaction",
+      "runtime": "Nodejs16.13"
+    }
+  ]
+}

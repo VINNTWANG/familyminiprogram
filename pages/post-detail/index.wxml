@@ -33,7 +33,7 @@
         <view class="comments-title">{{i18n.commentsTitle}}</view>
         <block wx:for="{{comments}}" wx:for-item="comment" wx:key="_id">
           <!-- Render a single comment item. Indentation is controlled by depth -->
-          <view class="comment {{comment.depth > 0 ? 'child-comment' : ''}}" style="margin-left: {{comment.depth * 40}}rpx; width: calc(100% - {{comment.depth * 40}}rpx);">
+          <view id="comment-{{comment._id}}" class="comment {{comment.depth > 0 ? 'child-comment' : ''}}" style="margin-left: {{comment.depth * 40}}rpx; width: calc(100% - {{comment.depth * 40}}rpx);">
             <image class="c-avatar" src="{{comment.authorAvatarUrl}}" />
             <view class="c-meta">
               <view class="name-line">

@@ -1,5 +1,12 @@
 
 const cloud = require('wx-server-sdk');
+const dayjs = require('dayjs');
+const relativeTime = require('dayjs/plugin/relativeTime');
+require('dayjs/locale/zh-cn');
+
+dayjs.extend(relativeTime);
+dayjs.locale('zh-cn');
+
 cloud.init({
   env: cloud.DYNAMIC_CURRENT_ENV
 });
@@ -18,7 +25,7 @@ exports.main = async (event, context) => {
   try {
     const skip = (pageNum - 1) * pageSize;
 
-    // Aggregate notifications with sender and post info
+    // Aggregate notifications with sender, post, and comment info
     const res = await db.collection('notifications').aggregate()
       .match({ recipientId: openid })
       .sort({ createTime: -1 })
@@ -36,6 +43,12 @@ exports.main = async (event, context) => {
         foreignField: '_id',
         as: 'postInfo',
       })
+      .lookup({
+        from: 'comments',
+        localField: 'commentId',
+        foreignField: '_id',
+        as: 'commentInfo',
+      })
       .project({
         _id: 1,
         type: 1,
@@ -44,10 +57,11 @@ exports.main = async (event, context) => {
         postId: 1,
         sender: { $arrayElemAt: ['$senderInfo', 0] },
         post: { $arrayElemAt: ['$postInfo', 0] },
+        comment: { $arrayElemAt: ['$commentInfo', 0] },
       })
       .end();
 
-    const list = res.list || [];
+    let list = res.list || [];
 
     // Fetch temp URLs for avatars if they exist
     const avatarFileIds = list.map(item => item.sender && item.sender.avatarUrl).filter(url => url && url.startsWith('cloud://'));
@@ -63,6 +77,12 @@ exports.main = async (event, context) => {
         }
       });
     }
+
+    // Format createTime to relative time
+    list = list.map(item => {
+      item.createTime = dayjs(item.createTime).fromNow();
+      return item;
+    });
 
     return {
       code: 0,

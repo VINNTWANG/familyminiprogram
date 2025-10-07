@@ -23,6 +23,7 @@ Page({
     isReplying: false,
     replyInfo: null,
     currentUserInfo: null,
+    targetCommentId: null, // Add this to store the target comment ID
   },
 
   onLoad(options) {
@@ -42,6 +43,12 @@ Page({
       this.setData({ isLoading: false, loadError: true });
       return;
     }
+
+    // Check for a commentId to scroll to
+    if (options.commentId) {
+      this.setData({ targetCommentId: options.commentId });
+    }
+
     this.loadData(postId);
   },
 
@@ -150,10 +157,37 @@ Page({
         isLoading: false,
       });
 
+      // Scroll to the target comment if specified
+      this.scrollToComment();
+
     } catch (err) {
       console.error('[DB] Failed to load post details', err);
       this.setData({ isLoading: false, loadError: true });
     }
+  },
+
+  scrollToComment() {
+    const { targetCommentId } = this.data;
+    if (!targetCommentId) return;
+
+    // Use a timeout to ensure the DOM is updated before querying
+    setTimeout(() => {
+      const query = wx.createSelectorQuery();
+      // Note: The comment item in WXML needs to have the id="comment-{{item._id}}"
+      query.select(`#comment-${targetCommentId}`).boundingClientRect();
+      query.selectViewport().scrollOffset();
+      query.exec((res) => {
+        if (res[0]) {
+          // Calculate scroll position, considering the fixed navbar height
+          const navBarHeightPx = this.data.navBarHeightRpx / (750 / wx.getSystemInfoSync().screenWidth);
+          const scrollTop = res[1].scrollTop + res[0].top - navBarHeightPx - 10; // 10px offset
+          wx.pageScrollTo({
+            scrollTop: scrollTop,
+            duration: 300,
+          });
+        }
+      });
+    }, 300);
   },
 
   processComments(comments) {

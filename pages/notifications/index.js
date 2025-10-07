@@ -86,10 +86,14 @@ Page({
   },
 
   onNotificationTap(e) {
-    const { postid } = e.currentTarget.dataset;
+    const { postid, commentid } = e.currentTarget.dataset;
     if (postid) {
+      let url = `/pages/post-detail/index?id=${postid}`;
+      if (commentid) {
+        url += `&commentId=${commentid}`;
+      }
       wx.navigateTo({
-        url: `/pages/post-detail/index?id=${postid}`
+        url: url
       });
     }
   },
