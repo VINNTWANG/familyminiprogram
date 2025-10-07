@@ -91,6 +91,27 @@ async function addComment(userInfo, postId, content, parentCommentId, replyToUse
     }
   });
 
+  // --- Start Notification Logic ---
+  // 1. Get the post to find the author
+  const postRes = await db.collection('posts').doc(postId).get();
+  const post = postRes.data;
+
+  // 2. Only send notification if the commenter is not the author
+  if (post && post._openid && post._openid !== userInfo.openId) {
+    await db.collection('notifications').add({
+      data: {
+        recipientId: post._openid, // The post author
+        senderId: userInfo.openId, // The commenter
+        postId: postId,
+        commentId: addResult._id,
+        type: 'comment',
+        isRead: false,
+        createTime: new Date(),
+      }
+    });
+  }
+  // --- End Notification Logic ---
+
   return {
     code: 0,
     message: '评论成功',

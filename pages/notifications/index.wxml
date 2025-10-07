@@ -1,25 +1,64 @@
-<t-navbar title="通知中心" left-arrow />
-<view class="page">
-  <t-cell-group title="未读">
-    <block wx:if="{{unread.length>0}}">
-      <t-cell wx:for="{{unread}}" wx:key="_id" title="{{formatTitle(item)}}" note="{{formatNote(item)}}" bind:click="onOpen" data-id="{{item._id}}">
-        <view slot="left-icon" style="margin-right: 8rpx;">
-          <t-badge dot>
-            <t-avatar size="24" image="{{ item.from && item.from.avatarUrl || '' }}" />
-          </t-badge>
-        </view>
-        <view slot="right-icon">
-          <t-button size="small" bind:tap="onMarkRead" data-id="{{item._id}}">标记已读</t-button>
-        </view>
-      </t-cell>
-    </block>
-    <t-cell wx:else title="暂无未读" />
-  </t-cell-group>
 
-  <t-cell-group title="已读">
-    <block wx:if="{{read.length>0}}">
-      <t-cell wx:for="{{read}}" wx:key="_id" title="{{formatTitle(item)}}" note="{{formatNote(item)}}" bind:click="onOpen" data-id="{{item._id}}" />
-    </block>
-    <t-cell wx:else title="暂无已读" />
-  </t-cell-group>
-</view>
+<t-navbar title="通知中心" left-arrow />
+
+<scroll-view
+  class="page-scroll-view"
+  scroll-y
+  refresher-enabled
+  bindrefresherrefresh="onRefresherRefresh"
+  refresher-triggered="{{isRefresherTriggered}}"
+  bindscrolltolower="onReachBottom"
+  lower-threshold="200"
+>
+  <block wx:if="{{isLoading && notifications.length === 0}}">
+    <!-- Loading Skeleton -->
+    <view class="skeleton-wrapper">
+      <view class="skeleton-item" wx:for="{{[1,2,3,4,5]}}" wx:key="*this">
+        <view class="skeleton-avatar"></view>
+        <view class="skeleton-content">
+          <view class="skeleton-line-title"></view>
+          <view class="skeleton-line-text"></view>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <block wx:elif="{{notifications.length > 0}}">
+    <view class="notification-list">
+      <view wx:for="{{notifications}}" wx:key="_id" class="notification-item {{!item.isRead ? 'unread' : ''}}" bind:tap="onNotificationTap" data-postid="{{item.postId}}">
+        <t-avatar class="item-avatar" size="large" image="{{item.sender.avatarUrl}}" />
+        <view class="item-content">
+          <view class="item-header">
+            <text class="item-nickname">{{item.sender.nickName || '家庭成员'}}</text>
+            <text class="item-time">{{item.createTimeFormatted}}</text>
+          </view>
+          <view class="item-body">
+            <block wx:if="{{item.type === 'reaction'}}">
+              <text class="action-text">回应了你的帖子</text>
+              <view class="post-snippet">{{item.post.content}}</view>
+            </block>
+            <block wx:elif="{{item.type === 'comment'}}">
+              <text class="action-text">评论了你的帖子</text>
+              <view class="post-snippet">{{item.post.content}}</view>
+            </block>
+            <block wx:else>
+              <text>发来一条新通知</text>
+            </block>
+          </view>
+        </view>
+      </view>
+    </view>
+    <!-- Load More / End of List -->
+    <view class="list-footer">
+      <t-loading wx:if="{{isLoading && notifications.length > 0}}" theme="spinner" text="加载中..." />
+      <view wx:elif="{{!hasMore}}" class="end-of-list">没有更多通知了</view>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="empty-state">
+      <t-empty description="还没有收到任何通知" />
+    </view>
+  </block>
+
+</scroll-view>

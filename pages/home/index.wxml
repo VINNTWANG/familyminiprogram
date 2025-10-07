@@ -59,7 +59,7 @@
           <t-grid-item t-class="quick-action-item" text="照片墙" bind:click="goPhotoWall">
             <t-icon name="image" size="24" />
           </t-grid-item>
-          <t-grid-item t-class="quick-action-item" text="{{i18n.remind}}" bind:click="goNotifications">
+          <t-grid-item t-class="quick-action-item" text="{{unreadNotifCount > 0 ? unreadNotifCount + '条新消息' : i18n.remind}}" bind:click="goNotifications">
             <t-icon name="notification" size="24" />
           </t-grid-item>
         </t-grid>

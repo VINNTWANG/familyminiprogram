@@ -57,6 +57,7 @@
     "swc": false,
     "disableSWC": true
   },
+  "cloudbase": "cloud1-9g6fy6vgc0c01f3d",
   "cloudfunctionRoot": "cloudfunctions/",
   "miniprogramRoot": "./",
   "compileType": "miniprogram",

@@ -1,33 +1,96 @@
+
+import { formatTime } from '../../utils/util';
+
 Page({
-  data: { unread: [], read: [] },
-  onShow() { this.load(); },
-  async load() {
-    const user = wx.getStorageSync('userInfo');
-    if (!user || !user._openid) return;
-    const db = wx.cloud.database();
-    const res = await db.collection('notifications').where({ toOpenid: user._openid }).orderBy('createTime','desc').get();
-    const list = res.data || [];
-    this.setData({ unread: list.filter(i=>!i.read), read: list.filter(i=>!!i.read) });
+  data: {
+    notifications: [],
+    isLoading: true,
+    isRefresherTriggered: false,
+    hasMore: true,
+    pageNum: 1,
+    pageSize: 15,
   },
-  formatTitle(item) {
-    if (item.type === 'comment') return '有新评论';
-    if (item.type === 'verification') return item.result === 'approved' ? '认证已通过' : '认证未通过';
-    return '通知';
+
+  onLoad() {
+    this.loadData(true);
   },
-  formatNote(item) {
-    if (item.type === 'comment') return (item.from && item.from.nickName ? item.from.nickName + ': ' : '') + (item.content || '...');
-    if (item.type === 'verification') return (item.verifyType === 'personal' ? '个人认证' : '家庭认证') + (item.result==='approved'?'已通过':'被驳回');
-    return '';
+
+  onShow() {
+    // Mark all as read when the user enters the page
+    this.markAllRead();
   },
-  async onMarkRead(e) {
-    const id = e.currentTarget.dataset.id; if (!id) return;
-    const db = wx.cloud.database();
-    try { await db.collection('notifications').doc(id).update({ data: { read: true } }); this.load(); } catch (e) {}
+
+  async loadData(reset = false) {
+    if (this.data.isLoading && !reset) return;
+
+    if (reset) {
+      this.setData({ pageNum: 1, hasMore: true, notifications: [] });
+    }
+
+    this.setData({ isLoading: true });
+
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'getNotificationList',
+        data: {
+          pageNum: this.data.pageNum,
+          pageSize: this.data.pageSize,
+        }
+      });
+
+      if (res.result && res.result.code === 0) {
+        const newNotifications = res.result.data || [];
+        const processedNotifications = newNotifications.map(item => {
+          return {
+            ...item,
+            createTimeFormatted: formatTime(new Date(item.createTime)),
+          };
+        });
+
+        this.setData({
+          notifications: reset ? processedNotifications : [...this.data.notifications, ...processedNotifications],
+          pageNum: this.data.pageNum + 1,
+          hasMore: newNotifications.length === this.data.pageSize,
+        });
+      } else {
+        throw new Error(res.result.message || 'Failed to load notifications');
+      }
+    } catch (e) {
+      console.error('[loadData] error', e);
+      wx.showToast({ title: '加载失败', icon: 'none' });
+    } finally {
+      this.setData({ isLoading: false, isRefresherTriggered: false });
+    }
   },
-  onOpen(e) {
-    const id = e.currentTarget.dataset.id; if (!id) return;
-    const all = [...this.data.unread, ...this.data.read];
-    const item = all.find(i=>i._id===id);
-    if (item && item.type==='comment' && item.postId) wx.navigateTo({ url: `/pages/post-detail/index?id=${item.postId}` });
-  }
+
+  async markAllRead() {
+    try {
+      await wx.cloud.callFunction({ name: 'markNotificationsAsRead' });
+      // Refresh the home page's notification count when returning
+      const eventBus = getApp().eventBus;
+      eventBus.emit('refreshNotifications');
+    } catch (e) {
+      console.error('[markAllRead] failed', e);
+    }
+  },
+
+  onRefresherRefresh() {
+    this.setData({ isRefresherTriggered: true });
+    this.loadData(true);
+  },
+
+  onReachBottom() {
+    if (this.data.hasMore && !this.data.isLoading) {
+      this.loadData();
+    }
+  },
+
+  onNotificationTap(e) {
+    const { postid } = e.currentTarget.dataset;
+    if (postid) {
+      wx.navigateTo({
+        url: `/pages/post-detail/index?id=${postid}`
+      });
+    }
+  },
 });

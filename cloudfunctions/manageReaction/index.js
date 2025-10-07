@@ -34,6 +34,21 @@ exports.main = async (event) => {
 
     await postRef.update({ data: { reactions } });
 
+    // Create a notification for the post author
+    const postAuthorId = snap.data._openid;
+    if (postAuthorId && postAuthorId !== openid) {
+      await db.collection('notifications').add({
+        data: {
+          recipientId: postAuthorId,
+          senderId: openid,
+          postId: postId,
+          type: 'reaction', // 'reaction' for like or other emojis
+          isRead: false,
+          createTime: new Date(),
+        }
+      });
+    }
+
     return { code: 0, data: { ...snap.data, reactions } };
   } catch (e) {
     console.error('[manageReaction] error:', e);

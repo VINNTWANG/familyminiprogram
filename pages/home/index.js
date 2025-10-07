@@ -39,6 +39,19 @@ Page({
     ],
     activeGreetingSub: '',
     loadError: false,
+    unreadNotifCount: 0, // For notification badge
+  },
+
+  async checkNotifications() {
+    try {
+      const res = await wx.cloud.callFunction({ name: 'getNotifications' });
+      if (res.result && res.result.code === 0) {
+        console.log('Unread count from cloud:', res.result.count);
+        this.setData({ unreadNotifCount: res.result.count || 0 });
+      }
+    } catch (e) {
+      console.error('[checkNotifications] failed', e);
+    }
   },
 
   onLoad(option) {
@@ -85,6 +98,7 @@ Page({
   },
 
   onShow() {
+    this.checkNotifications(); // Check for new notifications
     this.updateUserAvatar();
     this.setRandomGreetingSub();
     this.lastScrollY = 0;
