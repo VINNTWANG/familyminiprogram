@@ -1,1 +1,0 @@
-<!--pages/post-detail/index.wxml--><NL><view class="container"><NL>  <view class="native-navbar" style="height: {{navBarHeightRpx + statusBarHeightRpx}}rpx; padding-top: {{statusBarHeightRpx}}rpx;"><NL>    <vi
