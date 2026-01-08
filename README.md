@@ -1,5 +1,7 @@
 # Community & Family Management Mini Program
 
+[![中文文档](https://img.shields.io/badge/文档-中文版-blue.svg)](./README_CN.md)
+
 This project is a robust WeChat Mini Program designed for community interaction, family/group management, and content sharing. It is built upon the [TDesign Miniprogram Starter](https://github.com/TDesignOteam/tdesign-miniprogram-starter) and leverages WeChat Cloud Development (Cloud Functions & Database) for a serverless backend.
 
 ## 🌟 Key Features
