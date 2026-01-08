@@ -24,6 +24,21 @@ exports.main = async (event, context) => {
       .where(query)
       .orderBy('createTime', 'desc')
       .limit(pageSize || 10)
+      .field({
+        _id: true,
+        _openid: true,
+        content: true,
+        images: true,
+        videos: true,
+        videoCovers: true, // Explicitly include videoCovers
+        audios: true,
+        createTime: true,
+        authorInfo: true,
+        reactions: true,
+        commentCount: true,
+        reviewStatus: true,
+        visibility: true,
+      })
       .get();
 
     return postRes.data || [];

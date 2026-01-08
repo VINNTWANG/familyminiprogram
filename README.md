@@ -1,70 +1,107 @@
-# TDesign 通用页面模板
+# Community & Family Management Mini Program
 
-基于 TDesign 打造的通用页面模板，包含通用的登陆注册、个人中心、设置中心、信息流等等功能。
+This project is a robust WeChat Mini Program designed for community interaction, family/group management, and content sharing. It is built upon the [TDesign Miniprogram Starter](https://github.com/TDesignOteam/tdesign-miniprogram-starter) and leverages WeChat Cloud Development (Cloud Functions & Database) for a serverless backend.
 
-## 模版功能预览
+## 🌟 Key Features
 
-### 首页
+### 👤 User & Social
+*   **User Profiles:** Customized user profiles with editing capabilities.
+*   **Social Feed (Home):** Browse posts, view details, and interact.
+*   **Interactions:** Like posts, comment on threads, and search functionality.
+*   **Notifications:** Real-time system for tracking interactions and updates.
+*   **Chat:** Integrated chat interface (`pages/chat`).
 
-<div style="display: flex">
-  <img width="375" alt="image" src="https://tdesign.gtimg.com/miniprogram/template/home-1.png">
-  <img width="375" alt="image" src="https://tdesign.gtimg.com/miniprogram/template/home-2.png">
-</div>
+### 👨‍👩‍👧 Family/Group Management
+*   **Family Hub:** Dedicated section for family or group listings (`pages/family`).
+*   **Family Details:** Detailed views for specific family groups (`pages/family-detail`).
+*   **Management:** Tools to manage family members and settings (`cloudfunctions/manageFamily`).
 
-### 信息发布
+### 🛡️ Verification & Security
+*   **Identity Verification:** Workflows for personal and family verification (`pages/verify`).
+*   **Content Safety:** Automated text and image checks via `contentCheck` cloud function to comply with platform regulations.
 
-<img width="375" alt="image" src="https://tdesign.gtimg.com/miniprogram/template/publish-1.png">
+### 🔧 Admin Dashboard
+*   **Verification Approvals:** Admin interface to review and approve verification requests (`pages/admin/verify`).
+*   **Banner Management:** Manage homepage banners (`pages/admin/banner-manager`).
 
-### 搜索页
+### 📸 Other Features
+*   **Photo Wall:** Visual gallery for sharing moments (`pages/photowall`).
+*   **Data Center:** Statistics and analytics view (`pages/dataCenter`).
 
-<img width="375" alt="image" src="https://tdesign.gtimg.com/miniprogram/template/search-1.png">
+## 🛠 Tech Stack
 
-### 个人中心
-<div style="display: flex">
-  <img width="375" alt="image" src="https://tdesign.gtimg.com/miniprogram/template/user-1.png">
-  <img width="375" alt="image" src="https://tdesign.gtimg.com/miniprogram/template/user-2.png">
-  <img width="375" alt="image" src="https://tdesign.gtimg.com/miniprogram/template/user-3.png">
-</div>
+*   **Frontend:** WeChat Mini Program (WXML, WXSS, JavaScript/JSON)
+*   **UI Framework:** [TDesign Miniprogram](https://tdesign.tencent.com/miniprogram)
+*   **Backend:** WeChat Cloud Development (Serverless)
+    *   **Cloud Functions:** Node.js
+    *   **Database:** Cloud Database (NoSQL)
+    *   **Storage:** Cloud Storage for images/media
 
+## 📂 Project Structure
 
-### 设置中心
-
-<img width="375" alt="image" src="https://tdesign.gtimg.com/miniprogram/template/setting-1.png">
-
-### 消息中心
-
-<img width="375" alt="image" src="https://tdesign.gtimg.com/miniprogram/template/message-1.png">
-
-
-## 开发预览
-### 目录结构（TODO: 生成目录结构树）
-
-
-### 在开发者工具中预览
-
-```bash
-# 安装项目依赖
-npm install
-
+```text
+├── cloudfunctions/             # Backend logic (Node.js)
+│   ├── adminAction/            # Administrative tasks
+│   ├── contentCheck/           # Text/Image security filtering
+│   ├── getNotifications/       # Fetch user notifications
+│   ├── getPosts/               # Retrieve community posts
+│   ├── manageFamily/           # Family group CRUD operations
+│   ├── managePost/             # Post creation and deletion
+│   ├── manageReaction/         # Likes and interaction handling
+│   ├── submitVerification/     # Handle user verification requests
+│   └── ...
+├── components/                 # Reusable UI components
+│   ├── card/                   # Generic card component
+│   ├── post-card/              # Feed post display component
+│   ├── post-skeleton/          # Loading state skeleton
+│   └── ...
+├── pages/                      # Application views
+│   ├── admin/                  # Admin dashboard
+│   ├── family/                 # Family list view
+│   ├── home/                   # Main feed/homepage
+│   ├── login/                  # Authentication pages
+│   ├── my/                     # User profile and settings
+│   ├── notifications/          # Notification center
+│   ├── photowall/              # Image gallery
+│   ├── verify/                 # Verification forms
+│   └── ...
+├── static/                     # Static assets (images, icons)
+├── app.js                      # App entry point
+├── app.json                    # Global configuration
+└── project.config.json         # Project settings
 ```
 
-打开[微信开发者工具](https://mp.weixin.qq.com/debug/wxadoc/dev/devtools/download.html)，导入整个项目，构建 npm 包，就可以预览示例了。
+## 🚀 Getting Started
 
-### 基础库版本
+### Prerequisites
+*   [WeChat Developer Tools](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html)
+*   Node.js & npm installed
 
-最低基础库版本`^2.6.5`
+### Installation
 
+1.  **Clone/Download** the repository.
+2.  **Install Dependencies:**
+    Open a terminal in the project root and run:
+    ```bash
+    npm install
+    ```
+3.  **Build NPM:**
+    In WeChat Developer Tools, go to `Tools` -> `Build npm`.
 
-## 贡献成员
+### Cloud Configuration
 
-<a href="https://github.com/TDesignOteam/tdesign-miniprogram-starter/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=TDesignOteam/tdesign-miniprogram-starter" />
-</a>
+1.  **Enable Cloud Development:** In the developer tools, click the "Cloud" button to set up a cloud environment.
+2.  **Upload Cloud Functions:**
+    *   Right-click on the `cloudfunctions` folder.
+    *   Select your active cloud environment.
+    *   Choose "Upload and Deploy: Cloud Installation (Install dependencies)".
+3.  **Database Initialization:**
+    *   Check `cloudfunctions/initDb` (if available) or manually create collections required by the app (e.g., `posts`, `users`, `families`, `notifications`).
 
-## 反馈
+## 🤝 Contribution
 
-有任何问题，建议通过 [Github issues](https://github.com/TDesignOteam/tdesign-miniprogram-starter/issues) 反馈。
+Contributions are welcome! Please ensure you test your changes in the WeChat Developer Tools simulator before submitting.
 
-## 开源协议
+## 📄 License
 
-TDesign 遵循 [MIT 协议](https://github.com/TDesignOteam/tdesign-miniprogram-starter/blob/main/LICENSE)。
+This project is based on TDesign Starter (MIT License).

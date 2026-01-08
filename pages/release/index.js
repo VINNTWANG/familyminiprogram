@@ -134,14 +134,21 @@ Page({
     this._recalcCanSubmit();
   },
 
-  onMediaSuccess: function (e) {
-    const newImageVideoFiles = (e && e.detail && e.detail.files) || [];
+  onMediaAdd: function (e) {
+    const { files } = e.detail;
+    const newMediaFiles = files.map(file => ({
+      url: file.url,
+      type: file.type,
+      // For videos, we get the thumbnail from thumbTempFilePath
+      cover: file.type === 'video' ? file.thumbTempFilePath : null,
+    }));
+
     const audioFile = this.data.mediaFiles.find(f => f.type === 'audio');
-    let allFiles = newImageVideoFiles;
+    let allFiles = [...this.data.mediaFiles.filter(f => f.type !== 'audio'), ...newMediaFiles];
     if (audioFile) {
-        // Add the existing audio file to the new list of images/videos
-        allFiles = newImageVideoFiles.concat([audioFile]);
+        allFiles.push(audioFile);
     }
+
     this.setData({ mediaFiles: allFiles });
     this._recalcCanSubmit();
   },
@@ -246,53 +253,54 @@ Page({
       const db = wx.cloud.database();
       const filesToUpload = this.data.mediaFiles || [];
       
+      const uploadPromises = [];
+
+      // Create all upload promises first
+      filesToUpload.forEach(file => {
+        // Upload the main media file
+        uploadPromises.push(this.createUploadPromise(file.url, file.type, 'main'));
+        // If it's a video with a cover, upload the cover too
+        if (file.type === 'video' && file.cover) {
+          uploadPromises.push(this.createUploadPromise(file.cover, 'image', 'cover'));
+        }
+      });
+
+      const totalCount = uploadPromises.length;
+      let completedCount = 0;
+
+      // Wrap promises to track progress
+      const trackedPromises = uploadPromises.map(p => p.finally(() => {
+        completedCount++;
+        this.setData({ publishingProgress: Math.round((completedCount / totalCount) * 100) });
+      }));
+
+      const results = await Promise.allSettled(trackedPromises);
+
       const imageCloudPaths = [];
       const videoCloudPaths = [];
       const audioCloudPaths = [];
+      const videoCoverCloudPaths = [];
       let failedUploads = 0;
 
-      if (filesToUpload.length > 0) {
-        let completedCount = 0;
-        const totalCount = filesToUpload.length;
-
-        const uploadPromises = filesToUpload.map(file => {
-          let dir = 'post_images';
-          if (file.type === 'video') dir = 'post_videos';
-          else if (file.type === 'audio') dir = 'post_audios';
-          
-          const localPath = file.url;
-          const ext = (localPath.split('.').pop() || 'tmp').replace(/\?.*$/, '');
-          const cloudPath = `${dir}/${Date.now()}-${Math.floor(Math.random() * 1000000)}.${ext}`;
-          
-          const promise = wx.cloud.uploadFile({ cloudPath, filePath: localPath })
-            .then(res => ({ ...res, fileType: file.type }));
-          
-          // Add progress tracking to each promise
-          promise.finally(() => {
-            completedCount++;
-            this.setData({ publishingProgress: Math.round((completedCount / totalCount) * 100) });
-          });
-
-          return promise;
-        });
-
-        const results = await Promise.allSettled(uploadPromises);
-
-        results.forEach(res => {
-          if (res.status === 'fulfilled') {
-            const { fileID, fileType } = res.value;
-            if (fileType === 'video') videoCloudPaths.push(fileID);
-            else if (fileType === 'audio') audioCloudPaths.push(fileID);
-            else imageCloudPaths.push(fileID);
+      results.forEach(res => {
+        if (res.status === 'fulfilled') {
+          const { fileID, fileType, uploadType } = res.value;
+          if (uploadType === 'cover') {
+            videoCoverCloudPaths.push(fileID);
+          } else if (fileType === 'video') {
+            videoCloudPaths.push(fileID);
+          } else if (fileType === 'audio') {
+            audioCloudPaths.push(fileID);
           } else {
-            failedUploads++;
+            imageCloudPaths.push(fileID);
           }
-        });
-
-        if (failedUploads > 0) {
-          // This toast might be overwritten by the success/failure toast later, which is fine.
-          wx.showToast({ title: `${failedUploads}个文件上传失败`, icon: 'none' });
+        } else {
+          failedUploads++;
         }
+      });
+      
+      if (failedUploads > 0) {
+        wx.showToast({ title: `${failedUploads}个文件上传失败`, icon: 'none' });
       }
 
       const hasText = this.data.content.trim().length > 0;
@@ -305,6 +313,7 @@ Page({
             images: imageCloudPaths,
             videos: videoCloudPaths,
             audios: audioCloudPaths,
+            videoCovers: videoCoverCloudPaths.length > 0 ? videoCoverCloudPaths : (imageCloudPaths.length > 0 ? [imageCloudPaths[0]] : []),
             createTime: db.serverDate(),
             authorInfo: { nickName: userInfo.nickName, avatarUrl: userInfo.avatarUrl, _openid: userInfo._openid },
             reactions: [],
@@ -327,5 +336,18 @@ Page({
       this.setData({ isPublishing: false });
       this._recalcCanSubmit();
     }
+  },
+
+  createUploadPromise(localPath, fileType, uploadType) {
+    let dir = 'post_images';
+    if (fileType === 'video') dir = 'post_videos';
+    else if (fileType === 'audio') dir = 'post_audios';
+    else if (uploadType === 'cover') dir = 'video_covers';
+
+    const ext = (localPath.split('.').pop() || 'tmp').replace(/\?.*$/, '');
+    const cloudPath = `${dir}/${Date.now()}-${Math.floor(Math.random() * 1000000)}.${ext}`;
+    
+    return wx.cloud.uploadFile({ cloudPath, filePath: localPath })
+      .then(res => ({ ...res, fileType, uploadType }));
   },
 });

@@ -20,7 +20,7 @@
       <t-upload 
         media-type="{{['image','video']}}" 
         files="{{tools.filterMedia(mediaFiles)}}" 
-        bind:success="onMediaSuccess" 
+        bind:add="onMediaAdd" 
         bind:remove="onMediaRemove" 
         max="9"
       />

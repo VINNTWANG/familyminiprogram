@@ -13,6 +13,10 @@
     {
       "name": "manageReaction",
       "runtime": "Nodejs16.13"
+    },
+    {
+      "name": "getPosts",
+      "runtime": "Nodejs16.13"
     }
   ]
 }
