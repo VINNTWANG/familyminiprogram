@@ -141,8 +141,11 @@ Component({
         return;
       }
 
-      // Optimistic update
-      const reactions = post.reactions || [];
+      // 1. Snapshot previous state for rollback
+      const originalReactions = JSON.parse(JSON.stringify(post.reactions || []));
+
+      // 2. Optimistic update
+      const reactions = [...originalReactions];
       const existingReactionIndex = reactions.findIndex(r => r.openid === myOpenId && r.emoji === emoji);
 
       if (existingReactionIndex > -1) {
@@ -151,14 +154,15 @@ Component({
         reactions.push({ openid: myOpenId, emoji: emoji });
       }
 
+      // Apply UI update immediately
       this.setData({
         'post.reactions': reactions,
         showReactionPanel: false,
       });
-      // Update derived state immediately for responsiveness
+      // Force update derived state
       this._updateReactionState(reactions);
 
-      // Call cloud function to update backend
+      // 3. Call cloud function
       wx.cloud.callFunction({
         name: 'manageReaction',
         data: { 
@@ -167,17 +171,24 @@ Component({
         }
       }).then(res => {
         if (res.result && res.result.code === 0) {
-          // Update with the definitive state from the server
+          // Success: Update with definitive server state (optional but good for consistency)
           this.setData({ 'post.reactions': res.result.data.reactions });
-          // Emit event for other pages to update
+          this._updateReactionState(res.result.data.reactions);
+          // Emit event for other pages
           eventBus.emit('post-updated', { postId: post._id, reactions: res.result.data.reactions });
         } else {
-          // TODO: Revert optimistic update on failure
-          console.error('Reaction update failed', res);
+          // Failure: Revert UI
+          console.error('Reaction update failed, reverting', res);
+          this.setData({ 'post.reactions': originalReactions });
+          this._updateReactionState(originalReactions);
+          wx.showToast({ title: '操作失败', icon: 'none' });
         }
       }).catch(err => {
-        // TODO: Revert optimistic update on failure
-        console.error('Reaction cloud function error', err);
+        // Error: Revert UI
+        console.error('Reaction cloud function error, reverting', err);
+        this.setData({ 'post.reactions': originalReactions });
+        this._updateReactionState(originalReactions);
+        wx.showToast({ title: '网络错误', icon: 'none' });
       });
     },
 

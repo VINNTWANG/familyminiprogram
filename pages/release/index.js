@@ -324,6 +324,7 @@ Page({
         });
 
         wx.hideLoading();
+        wx.removeStorageSync('release_draft'); // Clear draft on success
         wx.showToast({ title: '发布成功', icon: 'success' });
         setTimeout(() => { wx.reLaunch({ url: '/pages/home/index?oper=release' }); }, 1500);
       } else {
